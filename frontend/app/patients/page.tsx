@@ -2,6 +2,8 @@ import Link from "next/link"
 import { apiClient } from "@/lib/api"
 import PatientsClient from "./patients-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function PatientsPage() {
   let initialData: any = { patients: [], total: 0, page: 1, totalPages: 1 }
   try {

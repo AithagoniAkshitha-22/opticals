@@ -1,6 +1,8 @@
 import { apiClient } from "@/lib/api"
 import BrandsClient from "./brands-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function BrandsPage() {
   let frameBrands: any[] = []
   let lensBrands: any[] = []

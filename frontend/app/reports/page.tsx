@@ -1,6 +1,8 @@
 import { apiClient } from "@/lib/api"
 import ReportsClient from "./reports-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function ReportsPage() {
   const year = new Date().getFullYear()
   let reportData: any = null
