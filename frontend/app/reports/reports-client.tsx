@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { apiClient } from "@/lib/api"
 
 export default function ReportsClient({ initialData, initialYear }: { initialData: any; initialYear: number }) {
@@ -16,6 +16,9 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
   }
+
+  // Auto-fetch on mount
+  useEffect(() => { fetchReport(initialYear) }, [])
 
   const maxVal = data ? Math.max(...data.report.map((r: any) => Math.max(r.patients, r.orders)), 1) : 1
   const totalPatients = data ? data.report.reduce((s: number, r: any) => s + r.patients, 0) : 0

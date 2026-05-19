@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
 
@@ -25,6 +25,9 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
       setLoading(false)
     }
   }, [search, phone])
+
+  // Auto-fetch on mount
+  useEffect(() => { fetchPatients("", "", 1) }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

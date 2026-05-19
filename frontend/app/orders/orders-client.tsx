@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
 
@@ -29,6 +29,9 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
   }, [status, search])
+
+  // Auto-fetch on mount
+  useEffect(() => { fetchOrders("all", "", 1) }, [])
 
   return (
     <div>
