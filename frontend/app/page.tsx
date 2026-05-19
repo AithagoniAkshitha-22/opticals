@@ -1,213 +1,153 @@
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
-import Breadcrumb from "@/components/breadcrumb"
 
-export default async function HomePage() {
+export default async function DashboardPage() {
   let stats = {
-    total: 0,
-    statusCounts: {
-      New: 0,
-      Engaged: 0,
-      "Proposal Sent": 0,
-      "Closed-Won": 0,
-      "Closed-Lost": 0,
-    },
-    conversionRate: 0,
+    todayPatients: 0,
+    activeOrders: 0,
+    processingOrders: 0,
+    readyForPickup: 0,
+    delayedOrders: 0,
+    deliveredOrders: 0,
   }
 
-  let recentLeads: any[] = []
-
   try {
-    // Fetch stats
-    const statsResponse = await apiClient.getLeadStats()
-    if (statsResponse.success && statsResponse.data) {
-      stats = statsResponse.data
-    }
+    const res = await apiClient.getDashboardStats()
+    if (res.success && res.data) stats = res.data
+  } catch (e) {
+    console.error("Dashboard fetch error:", e)
+  }
 
-    // Fetch recent leads
-    const leadsResponse = await apiClient.getLeads({ limit: 5, sortBy: "createdAt", sortOrder: "desc" })
-    if (leadsResponse.success && leadsResponse.data) {
-      recentLeads = leadsResponse.data.leads
-    }
-  } catch (error) {
-    console.error("Error fetching data:", error)
+  const cards = [
+    { label: "Today's Patients", value: stats.todayPatients, color: "blue", href: "/patients?filter=today", icon: "👤" },
+    { label: "Active Orders", value: stats.activeOrders, color: "indigo", href: "/orders?status=active", icon: "📦" },
+    { label: "Processing", value: stats.processingOrders, color: "yellow", href: "/orders?status=Processing", icon: "⚙️" },
+    { label: "Ready for Pickup", value: stats.readyForPickup, color: "green", href: "/orders?status=Ready+for+Pickup", icon: "✅" },
+    { label: "Delayed Orders", value: stats.delayedOrders, color: "red", href: "/orders?status=Delayed", icon: "⚠️" },
+    { label: "Delivered", value: stats.deliveredOrders, color: "gray", href: "/orders?status=Delivered", icon: "🎉" },
+  ]
+
+  const colorMap: Record<string, string> = {
+    blue: "bg-blue-50 border-blue-200 text-blue-700",
+    indigo: "bg-indigo-50 border-indigo-200 text-indigo-700",
+    yellow: "bg-yellow-50 border-yellow-200 text-yellow-700",
+    green: "bg-green-50 border-green-200 text-green-700",
+    red: "bg-red-50 border-red-200 text-red-700",
+    gray: "bg-gray-50 border-gray-200 text-gray-700",
   }
 
   return (
-    <>
-      <Breadcrumb />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to LeadFlow</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Your comprehensive lead tracking and management dashboard
-            </p>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-500 mt-1">Welcome to Kasturi Eye Hospitals Management System</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+        {cards.map((card) => (
+          <Link
+            key={card.label}
+            href={card.href}
+            className={`border rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow ${colorMap[card.color]}`}
+          >
+            <span className="text-2xl mb-1">{card.icon}</span>
+            <span className="text-3xl font-bold">{card.value}</span>
+            <span className="text-xs font-medium mt-1 leading-tight">{card.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <Link
+          href="/patients/new"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 flex items-center gap-4 transition-colors shadow"
+        >
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">👤</div>
+          <div>
+            <p className="font-bold text-lg">Add New Patient</p>
+            <p className="text-blue-100 text-sm">Register a new patient visit</p>
           </div>
+        </Link>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">Total Leads</h3>
-                <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
-              <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-              <p className="text-xs text-gray-500">Active leads in pipeline</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">New Leads</h3>
-                <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                  />
-                </svg>
-              </div>
-              <div className="text-2xl font-bold text-green-600">{stats.statusCounts.New}</div>
-              <p className="text-xs text-gray-500">Awaiting first contact</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">Closed Won</h3>
-                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                  />
-                </svg>
-              </div>
-              <div className="text-2xl font-bold text-purple-600">{stats.statusCounts["Closed-Won"]}</div>
-              <p className="text-xs text-gray-500">Successfully converted</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">Conversion Rate</h3>
-                <svg className="h-5 w-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <div className="text-2xl font-bold text-orange-600">{stats.conversionRate}%</div>
-              <p className="text-xs text-gray-500">Lead to customer ratio</p>
-            </div>
+        <Link
+          href="/orders/new"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 flex items-center gap-4 transition-colors shadow"
+        >
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📋</div>
+          <div>
+            <p className="font-bold text-lg">Create Order</p>
+            <p className="text-green-100 text-sm">Frames, lenses, or drops</p>
           </div>
+        </Link>
 
-          {/* Action Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-xl rounded-lg p-8">
-              <div className="flex items-center gap-2 mb-4">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                  />
-                </svg>
-                <h2 className="text-2xl font-bold">Add New Lead</h2>
-              </div>
-              <p className="text-blue-100 mb-6">Capture new potential customers and start building relationships</p>
-              <Link href="/leads/new">
-                <button className="w-full bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors">
-                  Create New Lead
-                </button>
-              </Link>
-            </div>
-
-            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-xl rounded-lg p-8">
-              <div className="flex items-center gap-2 mb-4">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                <h2 className="text-2xl font-bold">View All Leads</h2>
-              </div>
-              <p className="text-purple-100 mb-6">Monitor and manage your entire lead database</p>
-              <p className="mb-6 text-purple-50">
-              </p>
-              <Link href="/leads">
-                <button className="w-full bg-white text-purple-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors">
-                  View Lead List
-                </button>
-              </Link>
-            </div>
+        <Link
+          href="/reports"
+          className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-6 flex items-center gap-4 transition-colors shadow"
+        >
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📊</div>
+          <div>
+            <p className="font-bold text-lg">View Reports</p>
+            <p className="text-purple-100 text-sm">Monthly stats & analytics</p>
           </div>
+        </Link>
+      </div>
 
-          {/* Recent Activity */}
-          <div className="bg-white shadow-lg rounded-lg">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
-              <p className="text-gray-600">Latest updates from your lead pipeline</p>
-            </div>
-            <div className="p-6">
-              {recentLeads.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No recent activity</p>
+      {/* Info Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Links</h2>
+          <div className="space-y-3">
+            {[
+              { href: "/patients", label: "All Patients", desc: "Search and manage patient records" },
+              { href: "/orders", label: "All Orders", desc: "Track and update order status" },
+              { href: "/brands", label: "Brands Management", desc: "Manage frame and lens brands" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border border-gray-100 transition-colors"
+              >
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">{item.label}</p>
+                  <p className="text-xs text-gray-500">{item.desc}</p>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {recentLeads.map((lead) => (
-                    <div key={lead._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 font-semibold">{lead.name.charAt(0).toUpperCase()}</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{lead.name}</p>
-                          <p className="text-sm text-gray-500">{lead.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            lead.status === "Closed-Won"
-                              ? "bg-green-100 text-green-800"
-                              : lead.status === "Closed-Lost"
-                                ? "bg-red-100 text-red-800"
-                                : lead.status === "New"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : lead.status === "Engaged"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-purple-100 text-purple-800"
-                          }`}
-                        >
-                          {lead.status}
-                        </span>
-                        <span className="text-sm text-gray-500">{new Date(lead.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">System Info</h2>
+          <div className="space-y-3 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span>No delete option — all data is permanent</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              <span>Audit logs track all edits automatically</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+              <span>Orders auto-advance after 2 days</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+              <span>Delayed flag set after 3+ days at pickup</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span>WhatsApp notifications with tracking</span>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
