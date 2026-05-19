@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/api"
 import Link from "next/link"
 import OrderDetailClient from "./order-detail-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function OrderDetailPage({
   params,
 }: {
