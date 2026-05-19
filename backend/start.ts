@@ -20,16 +20,21 @@ connectDB()
 
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
+  "http://localhost:3000",
+  "http://localhost:3001",
 ]
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Render health checks)
     if (!origin) return callback(null, true)
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true)
-    } else {
-      callback(new Error("Not allowed by CORS"))
-    }
+    // Allow any vercel.app subdomain
+    if (origin.endsWith(".vercel.app")) return callback(null, true)
+    // Allow any render.com subdomain
+    if (origin.endsWith(".onrender.com")) return callback(null, true)
+    // Allow explicitly listed origins
+    if (allowedOrigins.includes(origin)) return callback(null, true)
+    callback(new Error("Not allowed by CORS"))
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "x-user"],
@@ -42,14 +47,7 @@ app.options("*", cors(corsOptions))
 
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        connectSrc: ["'self'", ...allowedOrigins],
-      },
-    },
+    contentSecurityPolicy: false,
   })
 )
 
