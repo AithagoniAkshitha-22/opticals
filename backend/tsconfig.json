@@ -13,8 +13,17 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0"
   },
-  "include": ["start.ts", "controllers/**/*", "db/**/*", "middleware/**/*", "models/**/*", "routes/**/*", "types/**/*"],
+  "include": [
+    "start.ts",
+    "controllers/**/*",
+    "db/**/*",
+    "middleware/**/*",
+    "models/**/*",
+    "routes/**/*",
+    "types/**/*"
+  ],
   "exclude": ["node_modules", "dist", "*.js"]
 }
