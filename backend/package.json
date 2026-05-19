@@ -5,10 +5,9 @@
   "main": "dist/start.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only start.ts",
-    "build": "tsc",
-    "build:clean": "rimraf dist && tsc",
+    "build": "tsc --skipLibCheck",
     "start": "node dist/start.js",
-    "start:dev": "ts-node start.ts",
+    "start:ts": "ts-node --transpile-only start.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {
@@ -21,11 +20,11 @@
     "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
     "mongoose": "^8.0.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "devDependencies": {
     "rimraf": "^5.0.10",
-    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0"
   }
 }
