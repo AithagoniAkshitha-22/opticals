@@ -54,14 +54,10 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <Link href="/patients/new" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 flex items-center gap-4 transition-colors shadow">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">👤</div>
           <div><p className="font-bold text-lg">Add New Patient</p><p className="text-blue-100 text-sm">Register a new patient visit</p></div>
-        </Link>
-        <Link href="/orders/new" className="bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 flex items-center gap-4 transition-colors shadow">
-          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📋</div>
-          <div><p className="font-bold text-lg">Create Order</p><p className="text-green-100 text-sm">Frames, lenses, or drops</p></div>
         </Link>
         <Link href="/reports" className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-6 flex items-center gap-4 transition-colors shadow">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📊</div>
