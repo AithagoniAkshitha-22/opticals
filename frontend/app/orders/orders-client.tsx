@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
 
@@ -15,6 +16,7 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUSES = ["all", "Ordered", "Processing", "Ready for Pickup", "Delivered", "Delayed"]
 
 export default function OrdersClient({ initialData }: { initialData: any }) {
+  const router = useRouter()
   const [data, setData] = useState(initialData)
   const [status, setStatus] = useState("all")
   const [search, setSearch] = useState("")
@@ -85,7 +87,6 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                   <th className="px-6 py-3 text-left">Amount</th>
                   <th className="px-6 py-3 text-left">Status</th>
                   <th className="px-6 py-3 text-left">Date</th>
-                  <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -93,7 +94,11 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                   const patient = o.patientId as any
                   const itemCount = (o.frames?.length || 0) + (o.lenses?.length || 0) + (o.drops?.length || 0)
                   return (
-                    <tr key={o._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={o._id}
+                      onClick={() => router.push(`/orders/${o._id}`)}
+                      className="hover:bg-blue-50 cursor-pointer transition-colors"
+                    >
                       <td className="px-6 py-4 font-mono text-xs text-gray-600">#{o._id.slice(-6).toUpperCase()}</td>
                       <td className="px-6 py-4">
                         <p className="font-medium text-gray-900">{patient?.name || "—"}</p>
@@ -107,9 +112,6 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString()}</td>
-                      <td className="px-6 py-4">
-                        <Link href={`/orders/${o._id}`} className="text-blue-600 hover:text-blue-800 font-medium text-xs">View →</Link>
-                      </td>
                     </tr>
                   )
                 })}

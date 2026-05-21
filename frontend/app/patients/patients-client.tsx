@@ -2,9 +2,11 @@
 
 import { useState, useCallback, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { apiClient } from "@/lib/api"
 
 export default function PatientsClient({ initialData }: { initialData: any }) {
+  const router = useRouter()
   const [data, setData] = useState(initialData)
   const [search, setSearch] = useState("")
   const [phone, setPhone] = useState("")
@@ -91,25 +93,20 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
                   <th className="px-6 py-3 text-left">Age</th>
                   <th className="px-6 py-3 text-left">Address</th>
                   <th className="px-6 py-3 text-left">Registered</th>
-                  <th className="px-6 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {data.patients.map((p: any) => (
-                  <tr key={p._id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={p._id}
+                    onClick={() => router.push(`/patients/${p._id}`)}
+                    className="hover:bg-blue-50 cursor-pointer transition-colors"
+                  >
                     <td className="px-6 py-4 font-medium text-gray-900">{p.name}</td>
                     <td className="px-6 py-4 text-gray-600">{p.phone}</td>
                     <td className="px-6 py-4 text-gray-600">{p.age}</td>
                     <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate">{p.address}</td>
                     <td className="px-6 py-4 text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/patients/${p._id}`}
-                        className="text-blue-600 hover:text-blue-800 font-medium text-xs"
-                      >
-                        View →
-                      </Link>
-                    </td>
                   </tr>
                 ))}
               </tbody>
