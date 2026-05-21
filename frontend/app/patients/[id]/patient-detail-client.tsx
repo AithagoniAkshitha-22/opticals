@@ -108,13 +108,23 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
       {/* Info Tab */}
       {tab === "info" && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h2 className="font-semibold text-gray-800 mb-4">Patient Information</h2>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div><span className="text-gray-500">Name:</span> <span className="font-medium ml-2">{patient.name}</span></div>
-            <div><span className="text-gray-500">Phone:</span> <span className="font-medium ml-2">{patient.phone}</span></div>
-            <div><span className="text-gray-500">Age:</span> <span className="font-medium ml-2">{patient.age} years</span></div>
-            <div><span className="text-gray-500">Registered:</span> <span className="font-medium ml-2">{new Date(patient.createdAt).toLocaleDateString()}</span></div>
-            <div className="col-span-2"><span className="text-gray-500">Address:</span> <span className="font-medium ml-2">{patient.address}</span></div>
+          <h2 className="font-semibold text-gray-800 mb-5">Patient Information</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 text-sm divide-y sm:divide-y-0">
+            {[
+              { label: "Name", value: patient.name },
+              { label: "Phone", value: patient.phone },
+              { label: "Age", value: `${patient.age} years` },
+              { label: "Registered", value: new Date(patient.createdAt).toLocaleDateString() },
+              { label: "Address", value: patient.address, full: true },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className={`flex items-start py-3 px-2 ${item.full ? "sm:col-span-2" : ""}`}
+              >
+                <span className="text-gray-500 w-28 flex-shrink-0">{item.label}</span>
+                <span className="font-medium text-gray-900">{item.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
