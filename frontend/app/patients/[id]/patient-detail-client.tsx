@@ -121,7 +121,7 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                 key={item.label}
                 className={`flex items-start py-3 px-2 ${item.full ? "sm:col-span-2" : ""}`}
               >
-                <span className="text-gray-500 w-28 flex-shrink-0">{item.label}</span>
+                <span className="text-gray-500 w-28 flex-shrink-0">{item.label} :</span>
                 <span className="font-medium text-gray-900">{item.value}</span>
               </div>
             ))}
