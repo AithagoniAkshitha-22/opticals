@@ -87,23 +87,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">System Info</h2>
-          <div className="space-y-3 text-sm text-gray-600">
-            {[
-              { color: "green", text: "No delete option — all data is permanent" },
-              { color: "blue", text: "Audit logs track all edits automatically" },
-              { color: "purple", text: "Orders auto-advance after 2 days" },
-              { color: "yellow", text: "Delayed flag set after 3+ days at pickup" },
-              { color: "green", text: "WhatsApp notifications with tracking" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className={`w-2 h-2 bg-${item.color}-500 rounded-full`}></span>
-                <span>{item.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )
