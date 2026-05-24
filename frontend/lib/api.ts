@@ -95,8 +95,11 @@ class ApiClient {
     return this.request("/orders/dashboard")
   }
 
-  async getMonthlyReport(year?: number) {
-    return this.request(`/orders/report/monthly${year ? `?year=${year}` : ""}`)
+  async getMonthlyReport(params?: { fromYear?: number; fromMonth?: number; toYear?: number; toMonth?: number }) {
+    const qs = params ? new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])
+    ).toString() : ""
+    return this.request(`/orders/report/monthly${qs ? `?${qs}` : ""}`)
   }
 
   // ── Brands ────────────────────────────────────────────────

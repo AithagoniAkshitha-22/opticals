@@ -261,30 +261,42 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
 // Monthly reports
 export const getMonthlyReport = async (req: Request, res: Response): Promise<void> => {
   try {
-    const year = Number(req.query.year) || new Date().getFullYear()
+    const currentYear = new Date().getFullYear()
+    const fromYear = Number(req.query.fromYear) || currentYear
+    const fromMonth = Number(req.query.fromMonth) || 1
+    const toYear = Number(req.query.toYear) || currentYear
+    const toMonth = Number(req.query.toMonth) || 12
+
+    const startDate = new Date(fromYear, fromMonth - 1, 1)
+    const endDate = new Date(toYear, toMonth, 0, 23, 59, 59) // last day of toMonth
 
     const [patientStats, orderStats] = await Promise.all([
       Patient.aggregate([
-        { $match: { createdAt: { $gte: new Date(`${year}-01-01`), $lt: new Date(`${year + 1}-01-01`) } } },
-        { $group: { _id: { month: { $month: "$createdAt" } }, count: { $sum: 1 } } },
-        { $sort: { "_id.month": 1 } },
+        { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+        { $group: { _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } }, count: { $sum: 1 } } },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Order.aggregate([
-        { $match: { createdAt: { $gte: new Date(`${year}-01-01`), $lt: new Date(`${year + 1}-01-01`) } } },
-        { $group: { _id: { month: { $month: "$createdAt" } }, count: { $sum: 1 } } },
-        { $sort: { "_id.month": 1 } },
+        { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+        { $group: { _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } }, count: { $sum: 1 } } },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
     ])
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    const report = months.map((month, i) => {
-      const mNum = i + 1
-      const p = patientStats.find((s: any) => s._id.month === mNum)
-      const o = orderStats.find((s: any) => s._id.month === mNum)
-      return { month, patients: p?.count || 0, orders: o?.count || 0 }
-    })
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-    res.status(200).json({ success: true, data: { year, report } })
+    // Build list of months in range
+    const report: { month: string; year: number; monthNum: number; patients: number; orders: number }[] = []
+    let y = fromYear, m = fromMonth
+    while (y < toYear || (y === toYear && m <= toMonth)) {
+      const p = patientStats.find((s: any) => s._id.year === y && s._id.month === m)
+      const o = orderStats.find((s: any) => s._id.year === y && s._id.month === m)
+      report.push({ month: monthNames[m - 1], year: y, monthNum: m, patients: p?.count || 0, orders: o?.count || 0 })
+      m++
+      if (m > 12) { m = 1; y++ }
+    }
+
+    res.status(200).json({ success: true, data: { report } })
   } catch (error) {
     console.error("Error fetching monthly report:", error)
     res.status(500).json({ success: false, error: "Internal server error" })
