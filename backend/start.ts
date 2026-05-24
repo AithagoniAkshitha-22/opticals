@@ -8,6 +8,7 @@ import patientRoutes from "./routes/patientRoutes"
 import prescriptionRoutes from "./routes/prescriptionRoutes"
 import orderRoutes from "./routes/orderRoutes"
 import brandRoutes from "./routes/brandRoutes"
+import uploadRoutes from "./routes/uploadRoutes"
 import { errorHandler, notFound } from "./middleware/errorHandler"
 
 dotenv.config()
@@ -73,6 +74,7 @@ app.use("/api/patients", patientRoutes)
 app.use("/api/prescriptions", prescriptionRoutes)
 app.use("/api/orders", orderRoutes)
 app.use("/api/brands", brandRoutes)
+app.use("/api/upload", uploadRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

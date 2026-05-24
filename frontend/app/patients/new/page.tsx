@@ -65,9 +65,7 @@ export default function NewPatientPage() {
       const n = [...frames]; n[index] = { ...n[index], imageBase64: base64, imagePreview: base64 }; setFrames(n)
     }
     reader.readAsDataURL(file)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  }  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     if (!form.name || !form.phone || !form.age || !form.address) {
@@ -104,8 +102,16 @@ export default function NewPatientPage() {
       // 3. Save order if any items added
       const hasOrder = frames.length > 0 || lenses.length > 0 || drops.length > 0
       if (hasOrder) {
-        const framesPayload = frames.map(({ imagePreview, imageBase64, ...rest }) => ({
-          ...rest, brand: rest.brand || "Unknown", imageUrl: imageBase64 || undefined,
+        // Upload frame images to Cloudinary
+        const framesPayload = await Promise.all(frames.map(async ({ imagePreview, imageBase64, ...rest }) => {
+          let imageUrl: string | undefined = undefined
+          if (imageBase64) {
+            try {
+              const uploadRes = await apiClient.uploadFile(imageBase64, "kasturi-eye/frames")
+              if (uploadRes.success && uploadRes.data) imageUrl = uploadRes.data.url
+            } catch (e) { console.error("Frame image upload failed:", e) }
+          }
+          return { ...rest, brand: rest.brand || "Unknown", imageUrl }
         }))
         await apiClient.createOrder({
           patientId, frames: framesPayload, lenses, drops,

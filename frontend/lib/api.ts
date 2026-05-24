@@ -114,6 +114,14 @@ class ApiClient {
   async updateBrand(id: string, name: string) {
     return this.request(`/brands/${id}`, { method: "PUT", body: JSON.stringify({ name }) })
   }
+
+  // ── Upload ────────────────────────────────────────────────
+  async uploadFile(data: string, folder = "kasturi-eye") {
+    return this.request("/upload", {
+      method: "POST",
+      body: JSON.stringify({ data, folder }),
+    })
+  }
 }
 
 export const apiClient = new ApiClient()
