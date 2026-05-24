@@ -82,6 +82,9 @@ export default function Header() {
                 <p className="text-base font-bold text-blue-800 leading-tight">Kasturi Eye Hospitals</p>
                 <p className="text-xs text-gray-500">Management System</p>
               </div>
+              <div className="sm:hidden">
+                <p className="text-sm font-bold text-blue-800 leading-tight">Kasturi Eye Hospitals</p>
+              </div>
             </Link>
 
             {/* Desktop Nav — hidden on mobile */}
@@ -101,10 +104,8 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Mobile: show logo text only */}
-            <div className="md:hidden">
-              <p className="text-sm font-bold text-blue-800">Kasturi Eye</p>
-            </div>
+            {/* Mobile: spacer to balance layout */}
+            <div className="md:hidden w-10"></div>
           </div>
         </div>
       </header>
