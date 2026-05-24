@@ -10,10 +10,13 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
-  const [fromMonth, setFromMonth] = useState(1)
-  const [fromYear, setFromYear] = useState(initialYear)
-  const [toMonth, setToMonth] = useState(new Date().getMonth() + 1)
-  const [toYear, setToYear] = useState(initialYear)
+  const currentMonth = new Date().getMonth() + 1
+  const currentYear = new Date().getFullYear()
+
+  const [fromMonth, setFromMonth] = useState(currentMonth)
+  const [fromYear, setFromYear] = useState(currentYear)
+  const [toMonth, setToMonth] = useState(currentMonth)
+  const [toYear, setToYear] = useState(currentYear)
 
   const fetchReport = async (fm: number, fy: number, tm: number, ty: number) => {
     setLoading(true)
@@ -50,18 +53,17 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
           {/* From */}
           <div className="flex items-end gap-2">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">From Month</label>
-              <select value={fromMonth} onChange={(e) => setFromMonth(Number(e.target.value))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">From Year</label>
-              <select value={fromYear} onChange={(e) => setFromYear(Number(e.target.value))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-              </select>
+              <label className="block text-xs text-gray-500 mb-1">From</label>
+              <div className="flex gap-2">
+                <select value={fromMonth} onChange={(e) => setFromMonth(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+                </select>
+                <select value={fromYear} onChange={(e) => setFromYear(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -70,18 +72,17 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
           {/* To */}
           <div className="flex items-end gap-2">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">To Month</label>
-              <select value={toMonth} onChange={(e) => setToMonth(Number(e.target.value))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">To Year</label>
-              <select value={toYear} onChange={(e) => setToYear(Number(e.target.value))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-              </select>
+              <label className="block text-xs text-gray-500 mb-1">To</label>
+              <div className="flex gap-2">
+                <select value={toMonth} onChange={(e) => setToMonth(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+                </select>
+                <select value={toYear} onChange={(e) => setToYear(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
             </div>
           </div>
 
