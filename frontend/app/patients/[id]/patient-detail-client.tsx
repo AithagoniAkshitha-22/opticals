@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
 
@@ -196,26 +196,12 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">File URL (image/PDF)</label>
-                    <input
-                      type="text"
-                      value={prescData.fileUrl}
-                      onChange={(e) => setPrescData({ ...prescData, fileUrl: e.target.value })}
-                      placeholder="Paste file URL here"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">File Name</label>
-                    <input
-                      type="text"
-                      value={prescData.fileName}
-                      onChange={(e) => setPrescData({ ...prescData, fileName: e.target.value })}
-                      placeholder="e.g. prescription_jan2026.pdf"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                  <PrescriptionFileUpload
+                    fileUrl={prescData.fileUrl}
+                    fileName={prescData.fileName}
+                    onUpload={(url, name) => setPrescData({ ...prescData, fileUrl: url, fileName: name })}
+                    onClear={() => setPrescData({ ...prescData, fileUrl: "", fileName: "" })}
+                  />
                 </div>
               )}
 
@@ -304,6 +290,121 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+// ── Prescription File Upload Component ────────────────────────────────────────
+function PrescriptionFileUpload({
+  fileUrl,
+  fileName,
+  onUpload,
+  onClear,
+}: {
+  fileUrl: string
+  fileName: string
+  onUpload: (url: string, name: string) => void
+  onClear: () => void
+}) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleFile = async (file: File) => {
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) { setError("File must be under 10MB"); return }
+    setError("")
+    setUploading(true)
+    try {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string
+        const res = await apiClient.uploadFile(base64, "kasturi-eye/prescriptions")
+        if (res.success && res.data) {
+          onUpload(res.data.url, file.name)
+        } else {
+          setError("Upload failed. Please try again.")
+        }
+        setUploading(false)
+      }
+      reader.readAsDataURL(file)
+    } catch (err: any) {
+      setError(err.message || "Upload failed")
+      setUploading(false)
+    }
+  }
+
+  if (fileUrl) {
+    const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(fileName) || fileUrl.includes("image")
+    return (
+      <div className="border border-green-200 bg-green-50 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-green-700">✅ File uploaded</span>
+          <button type="button" onClick={onClear} className="text-xs text-red-500 hover:underline">Remove</button>
+        </div>
+        {isImage ? (
+          <img src={fileUrl} alt={fileName} className="max-h-48 rounded-lg border border-green-200 object-contain" />
+        ) : (
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+            📎 {fileName}
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {error && <p className="text-red-500 text-xs mb-2">{error}</p>}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,application/pdf"
+        capture={undefined}
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+      />
+      {uploading ? (
+        <div className="flex items-center gap-3 border border-blue-200 bg-blue-50 rounded-xl p-4">
+          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-blue-600">Uploading to cloud...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {/* Gallery / File picker */}
+          <button
+            type="button"
+            onClick={() => {
+              if (fileRef.current) {
+                fileRef.current.removeAttribute("capture")
+                fileRef.current.click()
+              }
+            }}
+            className="flex flex-col items-center gap-2 border-2 border-dashed border-gray-300 rounded-xl p-5 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+          >
+            <span className="text-3xl">🖼️</span>
+            <span className="text-sm font-medium text-gray-700">Gallery / File</span>
+            <span className="text-xs text-gray-400">Image or PDF</span>
+          </button>
+
+          {/* Camera (mobile) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (fileRef.current) {
+                fileRef.current.setAttribute("capture", "environment")
+                fileRef.current.click()
+              }
+            }}
+            className="flex flex-col items-center gap-2 border-2 border-dashed border-gray-300 rounded-xl p-5 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+          >
+            <span className="text-3xl">📷</span>
+            <span className="text-sm font-medium text-gray-700">Camera</span>
+            <span className="text-xs text-gray-400">Take a photo</span>
+          </button>
+        </div>
+      )}
+      <p className="text-xs text-gray-400 mt-2">Supports JPEG, PNG, WebP, PDF · max 10MB</p>
     </div>
   )
 }
