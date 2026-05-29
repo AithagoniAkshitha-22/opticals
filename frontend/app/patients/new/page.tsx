@@ -1,5 +1,6 @@
 "use client"
 
+// v2 - Cloudinary upload support
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { apiClient } from "@/lib/api"
