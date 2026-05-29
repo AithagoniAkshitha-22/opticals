@@ -66,7 +66,9 @@ export default function NewPatientPage() {
       const n = [...frames]; n[index] = { ...n[index], imageBase64: base64, imagePreview: base64 }; setFrames(n)
     }
     reader.readAsDataURL(file)
-  }  const handleSubmit = async (e: React.FormEvent) => {
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     if (!form.name || !form.phone || !form.age || !form.address) {
