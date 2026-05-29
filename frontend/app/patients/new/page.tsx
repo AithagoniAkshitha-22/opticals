@@ -401,17 +401,20 @@ function PrescNewUpload({
     if (file.size > 10 * 1024 * 1024) { setError("File must be under 10MB"); return }
     setError("")
     setUploading(true)
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      try {
-        const base64 = e.target?.result as string
-        const res = await apiClient.uploadFile(base64, "kasturi-eye/prescriptions")
-        if (res.success && res.data) onUpload(res.data.url, file.name)
-        else setError("Upload failed. Please try again.")
-      } catch (err: any) { setError(err.message || "Upload failed") }
-      finally { setUploading(false) }
-    }
-    reader.readAsDataURL(file)
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", "kasturi_eye_unsigned")
+    formData.append("folder", "kasturi-eye/prescriptions")
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/mediaflows/auto/upload", {
+        method: "POST",
+        body: formData,
+      })
+      const data = await res.json()
+      if (data.secure_url) onUpload(data.secure_url, file.name)
+      else setError("Upload failed. Please try again.")
+    } catch (err: any) { setError(err.message || "Upload failed") }
+    finally { setUploading(false) }
   }
 
   if (fileUrl) {

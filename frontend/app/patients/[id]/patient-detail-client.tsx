@@ -316,20 +316,25 @@ function PrescriptionFileUpload({
     setError("")
     setUploading(true)
     try {
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        const base64 = e.target?.result as string
-        const res = await apiClient.uploadFile(base64, "kasturi-eye/prescriptions")
-        if (res.success && res.data) {
-          onUpload(res.data.url, file.name)
-        } else {
-          setError("Upload failed. Please try again.")
-        }
-        setUploading(false)
+      // Direct upload to Cloudinary (no backend roundtrip = faster)
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("upload_preset", "kasturi_eye_unsigned")
+      formData.append("folder", "kasturi-eye/prescriptions")
+
+      const res = await fetch("https://api.cloudinary.com/v1_1/mediaflows/auto/upload", {
+        method: "POST",
+        body: formData,
+      })
+      const data = await res.json()
+      if (data.secure_url) {
+        onUpload(data.secure_url, file.name)
+      } else {
+        setError("Upload failed. Please try again.")
       }
-      reader.readAsDataURL(file)
     } catch (err: any) {
       setError(err.message || "Upload failed")
+    } finally {
       setUploading(false)
     }
   }
@@ -367,7 +372,7 @@ function PrescriptionFileUpload({
       {uploading ? (
         <div className="flex items-center gap-3 border border-blue-200 bg-blue-50 rounded-xl p-4">
           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-blue-600">Uploading to cloud...</span>
+          <span className="text-sm text-blue-600">Uploading...</span>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
