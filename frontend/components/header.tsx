@@ -141,7 +141,7 @@ export default function Header() {
       </nav>
 
       {/* ── Mobile bottom padding so content isn't hidden behind nav ── */}
-      <div className="md:hidden h-16" aria-hidden="true" />
+      <div className="md:hidden h-1" aria-hidden="true" />
     </>
   )
 }

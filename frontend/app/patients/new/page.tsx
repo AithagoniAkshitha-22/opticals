@@ -167,9 +167,13 @@ export default function NewPatientPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
             <div className="flex gap-2">
-              <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} onBlur={checkPhone} placeholder="10-digit mobile number"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <button type="button" onClick={checkPhone} disabled={checking} className="border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-50">
+              <input type="tel" value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onBlur={checkPhone}
+                placeholder="10-digit mobile number"
+                className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <button type="button" onClick={checkPhone} disabled={checking}
+                className="flex-shrink-0 border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 whitespace-nowrap">
                 {checking ? "..." : "Check"}
               </button>
             </div>

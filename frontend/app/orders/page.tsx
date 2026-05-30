@@ -3,7 +3,7 @@ import OrdersClient from "./orders-client"
 
 export default function OrdersPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 md:py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
