@@ -320,9 +320,8 @@ function PrescriptionFileUpload({
       formData.append("file", file)
       formData.append("upload_preset", "kasturi_eye_unsigned")
 
-      // Use image endpoint for images, raw for PDFs
       const resourceType = file.type === "application/pdf" ? "raw" : "image"
-      const res = await fetch(`https://api.cloudinary.com/v1_1/mediaflows/${resourceType}/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/dpp7ylg7d/${resourceType}/upload`, {
         method: "POST",
         body: formData,
       })
