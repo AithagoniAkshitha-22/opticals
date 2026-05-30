@@ -34,7 +34,7 @@ export default function NewPatientPage() {
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
   const [totalAmount, setTotalAmount] = useState("")
-  const [doctorName, setDoctorName] = useState("Dr. Kasturi")
+  const [doctorName, setDoctorName] = useState("Dr. R. Jay Krishnan")
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")

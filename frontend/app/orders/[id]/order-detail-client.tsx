@@ -112,12 +112,19 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
       {/* Patient Info */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h2 className="font-semibold text-gray-800 mb-4">Patient Details</h2>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div><span className="text-gray-500">Name:</span> <span className="font-medium ml-2">{patient?.name}</span></div>
-          <div><span className="text-gray-500">Phone:</span> <span className="font-medium ml-2">{patient?.phone}</span></div>
-          <div><span className="text-gray-500">Age:</span> <span className="font-medium ml-2">{patient?.age}</span></div>
-          <div><span className="text-gray-500">Doctor:</span> <span className="font-medium ml-2">{order.doctorName}</span></div>
-          <div className="col-span-2"><span className="text-gray-500">Address:</span> <span className="font-medium ml-2">{patient?.address}</span></div>
+        <div className="space-y-2 text-sm">
+          {[
+            { label: "Name", value: patient?.name },
+            { label: "Phone", value: patient?.phone },
+            { label: "Age", value: patient?.age },
+            { label: "Doctor", value: order.doctorName },
+            { label: "Address", value: patient?.address },
+          ].map((item) => (
+            <div key={item.label} className="flex items-start gap-2">
+              <span className="text-gray-500 w-20 flex-shrink-0">{item.label} :</span>
+              <span className="font-medium text-gray-900">{item.value}</span>
+            </div>
+          ))}
         </div>
         <Link href={`/patients/${patient?._id}`} className="text-blue-600 text-sm hover:underline mt-3 inline-block">View Patient Profile →</Link>
       </div>
@@ -133,11 +140,13 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
                 <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 text-sm gap-4">
                   <div className="flex items-center gap-3">
                     {f.imageUrl ? (
-                      <img
-                        src={f.imageUrl}
-                        alt={f.brand}
-                        className="w-14 h-14 object-cover rounded-lg border border-gray-200 flex-shrink-0"
-                      />
+                      <a href={f.imageUrl} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={f.imageUrl}
+                          alt={f.brand}
+                          className="w-14 h-14 object-cover rounded-lg border border-gray-200 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                        />
+                      </a>
                     ) : (
                       <div className="w-14 h-14 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0">
                         <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

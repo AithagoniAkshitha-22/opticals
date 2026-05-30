@@ -244,8 +244,18 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                         </div>
                       )}
                     </div>
+                  ) : p.fileUrl ? (
+                    <a href={p.fileUrl} target="_blank" rel="noopener noreferrer" className="block">
+                      {/\.(jpg|jpeg|png|webp|gif)/i.test(p.fileUrl) ? (
+                        <img src={p.fileUrl} alt="Prescription" className="max-h-48 w-auto rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" />
+                      ) : (
+                        <div className="flex items-center gap-2 text-blue-600 hover:underline text-sm">
+                          <span>📎</span><span>{p.fileName || "View prescription"}</span>
+                        </div>
+                      )}
+                    </a>
                   ) : (
-                    <p className="text-sm text-gray-600">📎 {p.fileName || "Uploaded file"}</p>
+                    <p className="text-sm text-gray-400">No file</p>
                   )}
                 </div>
               ))}
