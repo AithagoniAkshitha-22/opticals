@@ -319,7 +319,6 @@ function PrescriptionFileUpload({
       const formData = new FormData()
       formData.append("file", file)
       formData.append("upload_preset", "kasturi_eye_unsigned")
-      formData.append("folder", "kasturi-eye/prescriptions")
 
       // Use image endpoint for images, raw for PDFs
       const resourceType = file.type === "application/pdf" ? "raw" : "image"

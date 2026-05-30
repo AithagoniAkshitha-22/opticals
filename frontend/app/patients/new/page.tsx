@@ -404,7 +404,6 @@ function PrescNewUpload({
     const formData = new FormData()
     formData.append("file", file)
     formData.append("upload_preset", "kasturi_eye_unsigned")
-    formData.append("folder", "kasturi-eye/prescriptions")
     try {
       const resourceType = file.type === "application/pdf" ? "raw" : "image"
       const res = await fetch(`https://api.cloudinary.com/v1_1/mediaflows/${resourceType}/upload`, {
