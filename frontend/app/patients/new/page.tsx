@@ -406,13 +406,14 @@ function PrescNewUpload({
     formData.append("upload_preset", "kasturi_eye_unsigned")
     formData.append("folder", "kasturi-eye/prescriptions")
     try {
-      const res = await fetch("https://api.cloudinary.com/v1_1/mediaflows/auto/upload", {
+      const resourceType = file.type === "application/pdf" ? "raw" : "image"
+      const res = await fetch(`https://api.cloudinary.com/v1_1/mediaflows/${resourceType}/upload`, {
         method: "POST",
         body: formData,
       })
       const data = await res.json()
       if (data.secure_url) onUpload(data.secure_url, file.name)
-      else setError("Upload failed. Please try again.")
+      else setError(data.error?.message || "Upload failed. Please try again.")
     } catch (err: any) { setError(err.message || "Upload failed") }
     finally { setUploading(false) }
   }

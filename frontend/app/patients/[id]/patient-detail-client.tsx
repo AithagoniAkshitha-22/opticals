@@ -316,13 +316,14 @@ function PrescriptionFileUpload({
     setError("")
     setUploading(true)
     try {
-      // Direct upload to Cloudinary (no backend roundtrip = faster)
       const formData = new FormData()
       formData.append("file", file)
       formData.append("upload_preset", "kasturi_eye_unsigned")
       formData.append("folder", "kasturi-eye/prescriptions")
 
-      const res = await fetch("https://api.cloudinary.com/v1_1/mediaflows/auto/upload", {
+      // Use image endpoint for images, raw for PDFs
+      const resourceType = file.type === "application/pdf" ? "raw" : "image"
+      const res = await fetch(`https://api.cloudinary.com/v1_1/mediaflows/${resourceType}/upload`, {
         method: "POST",
         body: formData,
       })
@@ -330,7 +331,8 @@ function PrescriptionFileUpload({
       if (data.secure_url) {
         onUpload(data.secure_url, file.name)
       } else {
-        setError("Upload failed. Please try again.")
+        const errMsg = data.error?.message || "Upload failed"
+        setError(errMsg)
       }
     } catch (err: any) {
       setError(err.message || "Upload failed")
