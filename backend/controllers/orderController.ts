@@ -302,3 +302,35 @@ export const getMonthlyReport = async (req: Request, res: Response): Promise<voi
     res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
+
+// Soft delete order (hide)
+export const softDeleteOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const order = await Order.findByIdAndUpdate(id, { isHidden: true }, { new: true })
+    if (!order) { res.status(404).json({ success: false, error: "Order not found" }); return }
+    await AuditLog.create({
+      recordType: "Order", recordId: id, action: "update",
+      changedBy: req.headers["x-user"] || "staff",
+      description: `Order hidden`,
+      previousValues: { isHidden: false }, newValues: { isHidden: true },
+    })
+    res.status(200).json({ success: true, message: "Order hidden successfully" })
+  } catch (error) {
+    console.error("Error hiding order:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}
+
+// Restore order
+export const restoreOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const order = await Order.findByIdAndUpdate(id, { isHidden: false }, { new: true })
+    if (!order) { res.status(404).json({ success: false, error: "Order not found" }); return }
+    res.status(200).json({ success: true, message: "Order restored successfully" })
+  } catch (error) {
+    console.error("Error restoring order:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}

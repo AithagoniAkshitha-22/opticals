@@ -15,6 +15,7 @@ const PatientSchema = new Schema<IPatient>(
     phone: { type: String, required: true, trim: true },
     age: { type: Number, required: true, min: 0, max: 150 },
     address: { type: String, required: true, trim: true },
+    isHidden: { type: Boolean, default: false },
   },
   { timestamps: true }
 )

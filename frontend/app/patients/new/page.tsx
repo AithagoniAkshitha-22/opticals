@@ -262,7 +262,6 @@ export default function NewPatientPage() {
                 {frames.map((f, i) => (
                   <FrameRow key={i} frame={f} frameBrands={frameBrands}
                     onChange={(u) => { const n = [...frames]; n[i] = u; setFrames(n) }}
-                    onImageChange={(file) => handleFrameImage(i, file)}
                     onRemove={() => setFrames(frames.filter((_, j) => j !== i))} />
                 ))}
               </div>
@@ -352,11 +351,34 @@ export default function NewPatientPage() {
   )
 }
 
-function FrameRow({ frame, frameBrands, onChange, onImageChange, onRemove }: {
+function FrameRow({ frame, frameBrands, onChange, onRemove }: {
   frame: FrameItem; frameBrands: any[]
-  onChange: (f: FrameItem) => void; onImageChange: (file: File | null) => void; onRemove: () => void
+  onChange: (f: FrameItem) => void; onRemove: () => void
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (file: File) => {
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { alert("Image must be under 5MB"); return }
+    setUploading(true)
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", "kasturi_eye_unsigned")
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dpp7ylg7d/image/upload", {
+        method: "POST", body: formData,
+      })
+      const data = await res.json()
+      if (data.secure_url) {
+        onChange({ ...frame, imageBase64: data.secure_url, imagePreview: data.secure_url })
+      } else {
+        alert(data.error?.message || "Upload failed")
+      }
+    } catch (e: any) { alert(e.message || "Upload failed") }
+    finally { setUploading(false) }
+  }
+
   return (
     <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
       <div className="flex gap-2 items-center mb-2">
@@ -373,9 +395,16 @@ function FrameRow({ frame, frameBrands, onChange, onImageChange, onRemove }: {
         <button type="button" onClick={onRemove} className="text-red-400 hover:text-red-600">✕</button>
       </div>
       <div className="flex items-center gap-3">
-        {frame.imagePreview ? (
+        {uploading ? (
+          <div className="flex items-center gap-2 text-blue-600 text-xs">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            Uploading...
+          </div>
+        ) : frame.imagePreview ? (
           <div className="relative">
-            <img src={frame.imagePreview} alt="Frame" className="w-16 h-16 object-cover rounded-lg border border-gray-300" />
+            <a href={frame.imagePreview} target="_blank" rel="noopener noreferrer">
+              <img src={frame.imagePreview} alt="Frame" className="w-16 h-16 object-cover rounded-lg border border-gray-300 cursor-pointer hover:opacity-80 transition-opacity" />
+            </a>
             <button type="button" onClick={() => { onChange({ ...frame, imageBase64: undefined, imagePreview: undefined }); if (fileRef.current) fileRef.current.value = "" }}
               className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
           </div>
@@ -386,7 +415,7 @@ function FrameRow({ frame, frameBrands, onChange, onImageChange, onRemove }: {
           </button>
         )}
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
-          onChange={(e) => onImageChange(e.target.files?.[0] || null)} />
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
       </div>
     </div>
   )

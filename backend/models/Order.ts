@@ -90,6 +90,7 @@ const OrderSchema = new Schema<IOrder>(
     ],
     doctorName: { type: String, default: "Dr. Kasturi" },
     isDelayed: { type: Boolean, default: false },
+    isHidden: { type: Boolean, default: false },
   },
   { timestamps: true }
 )

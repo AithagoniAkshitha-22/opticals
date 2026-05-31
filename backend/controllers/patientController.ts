@@ -187,3 +187,35 @@ export const getTodaysPatients = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
+
+// Soft delete patient (hide)
+export const softDeletePatient = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const patient = await Patient.findByIdAndUpdate(id, { isHidden: true }, { new: true })
+    if (!patient) { res.status(404).json({ success: false, error: "Patient not found" }); return }
+    await AuditLog.create({
+      recordType: "Patient", recordId: id, action: "update",
+      changedBy: req.headers["x-user"] || "staff",
+      description: `Patient ${patient.name} hidden`,
+      previousValues: { isHidden: false }, newValues: { isHidden: true },
+    })
+    res.status(200).json({ success: true, message: "Patient hidden successfully" })
+  } catch (error) {
+    console.error("Error hiding patient:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}
+
+// Restore patient
+export const restorePatient = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const patient = await Patient.findByIdAndUpdate(id, { isHidden: false }, { new: true })
+    if (!patient) { res.status(404).json({ success: false, error: "Patient not found" }); return }
+    res.status(200).json({ success: true, message: "Patient restored successfully" })
+  } catch (error) {
+    console.error("Error restoring patient:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}
