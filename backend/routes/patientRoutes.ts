@@ -6,6 +6,8 @@ import {
   updatePatient,
   checkReturningPatient,
   getTodaysPatients,
+  softDeletePatient,
+  restorePatient,
 } from "../controllers/patientController"
 
 const router = Router()
@@ -16,5 +18,7 @@ router.get("/", getPatients)
 router.get("/:id", getPatientById)
 router.post("/", createPatient)
 router.put("/:id", updatePatient)
+router.delete("/:id", softDeletePatient)
+router.post("/:id/restore", restorePatient)
 
 export default router

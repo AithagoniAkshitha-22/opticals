@@ -7,6 +7,8 @@ import {
   logWhatsApp,
   getDashboardStats,
   getMonthlyReport,
+  softDeleteOrder,
+  restoreOrder,
 } from "../controllers/orderController"
 
 const router = Router()
@@ -18,5 +20,7 @@ router.get("/:id", getOrderById)
 router.post("/", createOrder)
 router.put("/:id/status", updateOrderStatus)
 router.post("/:id/whatsapp", logWhatsApp)
+router.delete("/:id", softDeleteOrder)
+router.post("/:id/restore", restoreOrder)
 
 export default router

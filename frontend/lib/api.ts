@@ -87,6 +87,14 @@ class ApiClient {
     return this.request(`/orders/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) })
   }
 
+  async deleteOrder(id: string) {
+    return this.request(`/orders/${id}`, { method: "DELETE" })
+  }
+
+  async deletePatient(id: string) {
+    return this.request(`/patients/${id}`, { method: "DELETE" })
+  }
+
   async logWhatsApp(id: string, sentBy: string) {
     return this.request(`/orders/${id}/whatsapp`, { method: "POST", body: JSON.stringify({ sentBy }) })
   }
