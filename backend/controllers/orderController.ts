@@ -215,6 +215,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       {
         status: { $in: ["Ordered", "Processing"] },
         createdAt: { $lte: twoDaysAgo },
+        isHidden: { $ne: true },
       },
       {
         $set: { status: "Ready for Pickup" },
@@ -227,18 +228,19 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       {
         status: "Ready for Pickup",
         updatedAt: { $lte: threeDaysAgo },
+        isHidden: { $ne: true },
       },
       { $set: { isDelayed: true } }
     )
 
     const [todayPatients, activeOrders, processingOrders, readyForPickup, delayedOrders, deliveredOrders] =
       await Promise.all([
-        Patient.countDocuments({ createdAt: { $gte: today, $lt: tomorrow } }),
-        Order.countDocuments({ status: { $in: ["Ordered", "Processing", "Ready for Pickup"] } }),
-        Order.countDocuments({ status: "Processing" }),
-        Order.countDocuments({ status: "Ready for Pickup" }),
-        Order.countDocuments({ isDelayed: true }),
-        Order.countDocuments({ status: "Delivered" }),
+        Patient.countDocuments({ createdAt: { $gte: today, $lt: tomorrow }, isHidden: { $ne: true } }),
+        Order.countDocuments({ status: { $in: ["Ordered", "Processing", "Ready for Pickup"] }, isHidden: { $ne: true } }),
+        Order.countDocuments({ status: "Processing", isHidden: { $ne: true } }),
+        Order.countDocuments({ status: "Ready for Pickup", isHidden: { $ne: true } }),
+        Order.countDocuments({ isDelayed: true, isHidden: { $ne: true } }),
+        Order.countDocuments({ status: "Delivered", isHidden: { $ne: true } }),
       ])
 
     res.status(200).json({
@@ -277,7 +279,7 @@ export const getMonthlyReport = async (req: Request, res: Response): Promise<voi
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Order.aggregate([
-        { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+        { $match: { createdAt: { $gte: startDate, $lte: endDate }, isHidden: { $ne: true } } },
         { $group: { _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } }, count: { $sum: 1 } } },
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
