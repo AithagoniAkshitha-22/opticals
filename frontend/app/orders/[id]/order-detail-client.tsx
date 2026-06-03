@@ -1,8 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
+
+function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    document.addEventListener("keydown", handler)
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.removeEventListener("keydown", handler)
+      document.body.style.overflow = ""
+    }
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      onClick={onClose}
+    >
+      <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={onClose}
+          className="absolute -top-10 right-0 text-white text-3xl font-light leading-none hover:text-gray-300 transition-colors"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <img
+          src={src}
+          alt={alt}
+          className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+        />
+      </div>
+    </div>
+  )
+}
 
 const STATUS_COLORS: Record<string, string> = {
   Ordered: "bg-blue-100 text-blue-700",
@@ -20,6 +54,15 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
   const [whatsappSending, setWhatsappSending] = useState(false)
   const [whatsappUrl, setWhatsappUrl] = useState("")
   const [msg, setMsg] = useState("")
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [lightboxAlt, setLightboxAlt] = useState("")
+
+  const openLightbox = useCallback((src: string, alt: string) => {
+    setLightboxSrc(src)
+    setLightboxAlt(alt)
+  }, [])
+
+  const closeLightbox = useCallback(() => setLightboxSrc(null), [])
 
   const patient = order.patientId as any
 
@@ -52,6 +95,7 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
 
   return (
     <div className="space-y-6">
+      {lightboxSrc && <ImageLightbox src={lightboxSrc} alt={lightboxAlt} onClose={closeLightbox} />}
       {msg && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">{msg}</div>}
 
       {/* Header */}
@@ -140,13 +184,17 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
                 <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 text-sm gap-4">
                   <div className="flex items-center gap-3">
                     {f.imageUrl ? (
-                      <a href={f.imageUrl} target="_blank" rel="noopener noreferrer">
+                      <button
+                        onClick={() => openLightbox(f.imageUrl, f.brand)}
+                        className="flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
+                        aria-label={`View full image of ${f.brand}`}
+                      >
                         <img
                           src={f.imageUrl}
                           alt={f.brand}
-                          className="w-14 h-14 object-cover rounded-lg border border-gray-200 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                          className="w-14 h-14 object-cover rounded-lg border border-gray-200 cursor-zoom-in hover:opacity-80 transition-opacity"
                         />
-                      </a>
+                      </button>
                     ) : (
                       <div className="w-14 h-14 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0">
                         <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
