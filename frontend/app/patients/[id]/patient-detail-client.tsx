@@ -103,6 +103,7 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
 
   return (
     <div>
+      {lightboxSrc && <ImageLightbox src={lightboxSrc} alt="Prescription" onClose={closeLightbox} />}
       {/* Patient Header Card */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
