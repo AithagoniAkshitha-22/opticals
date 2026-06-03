@@ -77,11 +77,21 @@ export default function NewOrderForm() {
     }
     setLoading(true)
     try {
-      const framesPayload = frames.map(({ imagePreview, imageBase64, ...rest }) => ({
-        ...rest,
-        brand: rest.brand || "Unknown",
-        imageUrl: imageBase64 || undefined,
-      }))
+      // Upload each frame image to Cloudinary before creating the order
+      const framesPayload = await Promise.all(
+        frames.map(async ({ imagePreview, imageBase64, ...rest }) => {
+          let imageUrl: string | undefined = undefined
+          if (imageBase64) {
+            const uploadRes = await apiClient.uploadFile(imageBase64, "kasturi-eye/frames")
+            if (uploadRes.success && uploadRes.data?.url) {
+              imageUrl = uploadRes.data.url
+            } else {
+              throw new Error("Failed to upload frame image. Please try again.")
+            }
+          }
+          return { ...rest, brand: rest.brand || "Unknown", imageUrl }
+        })
+      )
       const res = await apiClient.createOrder({ patientId, frames: framesPayload, lenses, drops, totalAmount: Number(totalAmount) || 0, doctorName })
       if (res.success && res.data) router.push(`/orders/${res.data._id}`)
       else setError(res.error || "Failed to create order")
@@ -221,7 +231,7 @@ export default function NewOrderForm() {
 
         <div className="flex gap-3">
           <button type="submit" disabled={loading} className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white py-3 rounded-lg text-sm font-medium transition-colors">
-            {loading ? "Creating Order..." : "Create Order"}
+            {loading ? "Uploading & Creating Order..." : "Create Order"}
           </button>
           <button type="button" onClick={() => router.back()} className="border border-gray-300 text-gray-600 px-6 py-3 rounded-lg text-sm hover:bg-gray-50 transition-colors">Cancel</button>
         </div>
