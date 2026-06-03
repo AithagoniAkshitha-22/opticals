@@ -1,15 +1,21 @@
 import type { Request, Response } from "express"
 import { v2 as cloudinary } from "cloudinary"
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
-
 // Upload base64 image or file to Cloudinary
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
   try {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME
+    const apiKey = process.env.CLOUDINARY_API_KEY
+    const apiSecret = process.env.CLOUDINARY_API_SECRET
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      console.error("Cloudinary env vars missing:", { cloudName: !!cloudName, apiKey: !!apiKey, apiSecret: !!apiSecret })
+      res.status(500).json({ success: false, error: "Cloudinary is not configured on the server. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET." })
+      return
+    }
+
+    cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret })
+
     const { data, folder = "kasturi-eye", resourceType = "auto" } = req.body
 
     if (!data) {
