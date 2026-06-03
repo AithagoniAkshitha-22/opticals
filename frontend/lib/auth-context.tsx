@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { onAuthStateChanged, User } from "firebase/auth"
-import { auth } from "./firebase"
 
 interface AuthContextType {
   user: User | null
@@ -16,11 +15,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u)
-      setLoading(false)
+    // Dynamically import auth only on the client
+    import("./firebase").then(({ auth }) => {
+      if (!auth) { setLoading(false); return }
+      const unsubscribe = onAuthStateChanged(auth, (u) => {
+        setUser(u)
+        setLoading(false)
+      })
+      return () => unsubscribe()
     })
-    return () => unsubscribe()
   }, [])
 
   return (

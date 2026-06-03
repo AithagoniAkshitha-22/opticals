@@ -2,8 +2,6 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { signOut } from "firebase/auth"
-import { auth } from "@/lib/firebase"
 import { useAuth } from "@/lib/auth-context"
 
 const navLinks = [
@@ -68,6 +66,8 @@ export default function Header() {
     href === "/" ? pathname === "/" : pathname.startsWith(href)
 
   const handleLogout = async () => {
+    const { auth } = await import("@/lib/firebase")
+    const { signOut } = await import("firebase/auth")
     await signOut(auth)
     router.replace("/login")
   }

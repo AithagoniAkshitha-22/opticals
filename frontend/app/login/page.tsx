@@ -2,12 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import {
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth"
-import { auth, googleProvider } from "@/lib/firebase"
 import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
@@ -29,6 +23,8 @@ export default function LoginPage() {
     setError("")
     setSubmitting(true)
     try {
+      const { auth } = await import("@/lib/firebase")
+      const { signInWithEmailAndPassword } = await import("firebase/auth")
       await signInWithEmailAndPassword(auth, email, password)
       router.replace("/")
     } catch (err: any) {
@@ -42,6 +38,8 @@ export default function LoginPage() {
     setError("")
     setSubmitting(true)
     try {
+      const { auth, googleProvider } = await import("@/lib/firebase")
+      const { signInWithPopup } = await import("firebase/auth")
       await signInWithPopup(auth, googleProvider)
       router.replace("/")
     } catch (err: any) {

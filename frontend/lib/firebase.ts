@@ -1,5 +1,5 @@
-import { initializeApp, getApps } from "firebase/app"
-import { getAuth, GoogleAuthProvider } from "firebase/auth"
+import { initializeApp, getApps, FirebaseApp } from "firebase/app"
+import { getAuth, Auth, GoogleAuthProvider } from "firebase/auth"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,6 +11,15 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
-export const auth = getAuth(app)
-export const googleProvider = new GoogleAuthProvider()
+// Only initialize on the client side
+let app: FirebaseApp
+let auth: Auth
+let googleProvider: GoogleAuthProvider
+
+if (typeof window !== "undefined") {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+  auth = getAuth(app)
+  googleProvider = new GoogleAuthProvider()
+}
+
+export { auth, googleProvider }
