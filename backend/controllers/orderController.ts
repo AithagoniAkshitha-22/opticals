@@ -305,21 +305,20 @@ export const getMonthlyReport = async (req: Request, res: Response): Promise<voi
   }
 }
 
-// Soft delete order (hide)
+// Hard delete order
 export const softDeleteOrder = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params
-    const order = await Order.findByIdAndUpdate(id, { isHidden: true }, { new: true })
+    const order = await Order.findByIdAndDelete(id)
     if (!order) { res.status(404).json({ success: false, error: "Order not found" }); return }
     await AuditLog.create({
-      recordType: "Order", recordId: id, action: "update",
+      recordType: "Order", recordId: id, action: "delete",
       changedBy: req.headers["x-user"] || "staff",
-      description: `Order hidden`,
-      previousValues: { isHidden: false }, newValues: { isHidden: true },
+      description: `Order permanently deleted`,
     })
-    res.status(200).json({ success: true, message: "Order hidden successfully" })
+    res.status(200).json({ success: true, message: "Order deleted successfully" })
   } catch (error) {
-    console.error("Error hiding order:", error)
+    console.error("Error deleting order:", error)
     res.status(500).json({ success: false, error: "Internal server error" })
   }
 }

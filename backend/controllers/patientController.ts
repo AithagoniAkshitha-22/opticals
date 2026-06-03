@@ -146,7 +146,7 @@ export const checkReturningPatient = async (req: Request, res: Response): Promis
       return
     }
 
-    const patient = await Patient.findOne({ phone: String(phone).trim() }).lean()
+    const patient = await Patient.findOne({ phone: String(phone).trim(), isHidden: { $ne: true } }).lean()
     if (!patient) {
       res.status(200).json({ success: true, data: { isReturning: false, patient: null } })
       return
@@ -188,21 +188,20 @@ export const getTodaysPatients = async (req: Request, res: Response): Promise<vo
   }
 }
 
-// Soft delete patient (hide)
+// Hard delete patient
 export const softDeletePatient = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params
-    const patient = await Patient.findByIdAndUpdate(id, { isHidden: true }, { new: true })
+    const patient = await Patient.findByIdAndDelete(id)
     if (!patient) { res.status(404).json({ success: false, error: "Patient not found" }); return }
     await AuditLog.create({
-      recordType: "Patient", recordId: id, action: "update",
+      recordType: "Patient", recordId: id, action: "delete",
       changedBy: req.headers["x-user"] || "staff",
-      description: `Patient ${patient.name} hidden`,
-      previousValues: { isHidden: false }, newValues: { isHidden: true },
+      description: `Patient ${patient.name} permanently deleted`,
     })
-    res.status(200).json({ success: true, message: "Patient hidden successfully" })
+    res.status(200).json({ success: true, message: "Patient deleted successfully" })
   } catch (error) {
-    console.error("Error hiding patient:", error)
+    console.error("Error deleting patient:", error)
     res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
