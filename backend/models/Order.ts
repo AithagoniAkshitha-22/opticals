@@ -36,6 +36,7 @@ export interface IOrder extends Document {
   whatsappLogs: IWhatsAppLog[]
   doctorName: string
   isDelayed: boolean
+  isHidden: boolean
   createdAt: Date
   updatedAt: Date
 }

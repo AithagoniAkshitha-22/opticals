@@ -5,6 +5,7 @@ export interface IPatient extends Document {
   phone: string
   age: number
   address: string
+  isHidden: boolean
   createdAt: Date
   updatedAt: Date
 }
