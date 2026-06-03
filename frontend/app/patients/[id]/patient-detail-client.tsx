@@ -1,8 +1,42 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
+
+function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    document.addEventListener("keydown", handler)
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.removeEventListener("keydown", handler)
+      document.body.style.overflow = ""
+    }
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      onClick={onClose}
+    >
+      <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={onClose}
+          className="absolute -top-10 right-0 text-white text-3xl font-light leading-none hover:text-gray-300 transition-colors"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <img
+          src={src}
+          alt={alt}
+          className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+        />
+      </div>
+    </div>
+  )
+}
 
 const STATUS_COLORS: Record<string, string> = {
   Ordered: "bg-blue-100 text-blue-700",
@@ -26,6 +60,9 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
   const [prescList, setPrescList] = useState(prescriptions)
   const [saving, setSaving] = useState(false)
   const [prescError, setPrescError] = useState("")
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const openLightbox = useCallback((src: string) => setLightboxSrc(src), [])
+  const closeLightbox = useCallback(() => setLightboxSrc(null), [])
 
   const savePrescription = async () => {
     setPrescError("")
@@ -245,15 +282,21 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                       )}
                     </div>
                   ) : p.fileUrl ? (
-                    <a href={p.fileUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    <div>
                       {/\.(jpg|jpeg|png|webp|gif)/i.test(p.fileUrl) ? (
-                        <img src={p.fileUrl} alt="Prescription" className="max-h-48 w-auto rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" />
+                        <button
+                          onClick={() => openLightbox(p.fileUrl)}
+                          className="block focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
+                          aria-label="View full prescription image"
+                        >
+                          <img src={p.fileUrl} alt="Prescription" className="max-h-48 w-auto rounded-lg border border-gray-200 cursor-zoom-in hover:opacity-90 transition-opacity" />
+                        </button>
                       ) : (
-                        <div className="flex items-center gap-2 text-blue-600 hover:underline text-sm">
+                        <a href={p.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline text-sm">
                           <span>📎</span><span>{p.fileName || "View prescription"}</span>
-                        </div>
+                        </a>
                       )}
-                    </a>
+                    </div>
                   ) : (
                     <p className="text-sm text-gray-400">No file</p>
                   )}
@@ -326,25 +369,21 @@ function PrescriptionFileUpload({
     setError("")
     setUploading(true)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("upload_preset", "kasturi_eye_unsigned")
-
-      const resourceType = file.type === "application/pdf" ? "raw" : "image"
-      const res = await fetch(`https://api.cloudinary.com/v1_1/dpp7ylg7d/${resourceType}/upload`, {
-        method: "POST",
-        body: formData,
-      })
-      const data = await res.json()
-      if (data.secure_url) {
-        onUpload(data.secure_url, file.name)
-      } else {
-        const errMsg = data.error?.message || "Upload failed"
-        setError(errMsg)
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string
+        const res = await apiClient.uploadFile(base64, "kasturi-eye/prescriptions")
+        if (res.success && res.data?.url) {
+          onUpload(res.data.url, file.name)
+        } else {
+          setError(res.error || "Upload failed")
+        }
+        setUploading(false)
       }
+      reader.onerror = () => { setError("Failed to read file"); setUploading(false) }
+      reader.readAsDataURL(file)
     } catch (err: any) {
       setError(err.message || "Upload failed")
-    } finally {
       setUploading(false)
     }
   }
