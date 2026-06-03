@@ -67,7 +67,7 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
     const limitNum = Math.max(1, Math.min(50, Number(limit)))
     const skip = (pageNum - 1) * limitNum
 
-    const query: any = {}
+    const query: any = { isHidden: { $ne: true } }
     if (status && status !== "all") query.status = status
     if (startDate || endDate) {
       query.createdAt = {}

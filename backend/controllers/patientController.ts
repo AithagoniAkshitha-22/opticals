@@ -41,7 +41,7 @@ export const getPatients = async (req: Request, res: Response): Promise<void> =>
     const limitNum = Math.max(1, Math.min(50, Number(limit)))
     const skip = (pageNum - 1) * limitNum
 
-    const query: any = {}
+    const query: any = { isHidden: { $ne: true } }
     if (search) {
       query.$or = [
         { name: { $regex: String(search).trim(), $options: "i" } },
@@ -85,7 +85,7 @@ export const getPatientById = async (req: Request, res: Response): Promise<void>
 
     const [prescriptions, orders] = await Promise.all([
       Prescription.find({ patientId: id }).sort({ createdAt: -1 }).lean(),
-      Order.find({ patientId: id }).sort({ createdAt: -1 }).lean(),
+      Order.find({ patientId: id, isHidden: { $ne: true } }).sort({ createdAt: -1 }).lean(),
     ])
 
     res.status(200).json({ success: true, data: { patient, prescriptions, orders } })
@@ -154,7 +154,7 @@ export const checkReturningPatient = async (req: Request, res: Response): Promis
 
     const [prescriptions, orders] = await Promise.all([
       Prescription.find({ patientId: patient._id }).sort({ createdAt: -1 }).lean(),
-      Order.find({ patientId: patient._id }).sort({ createdAt: -1 }).lean(),
+      Order.find({ patientId: patient._id, isHidden: { $ne: true } }).sort({ createdAt: -1 }).lean(),
     ])
 
     res.status(200).json({
