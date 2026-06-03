@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { apiClient } from "@/lib/api"
@@ -12,27 +12,25 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const fetchPatients = useCallback(async (s = search, pg = 1) => {
+  const fetchPatients = useCallback(async (s: string, pg: number) => {
     setLoading(true)
     try {
-      const res = await apiClient.getPatients({ search: s, page: pg, limit: 10 })
-      if (res.success && res.data) {
-        setData(res.data)
-        setPage(pg)
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }, [search])
+      const res = await apiClient.getPatients({ search: s.trim(), page: pg, limit: 10 })
+      if (res.success && res.data) { setData(res.data); setPage(pg) }
+    } catch (e) { console.error(e) }
+    finally { setLoading(false) }
+  }, [])
 
+  // Initial load
   useEffect(() => { fetchPatients("", 1) }, [])
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    fetchPatients(search, 1)
+  // Live search with 400ms debounce
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => fetchPatients(value, 1), 400)
   }
 
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
@@ -41,13 +39,7 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
     setDeletingId(id)
     try {
       const res = await apiClient.deletePatient(id)
-      if (res.success) {
-        setData((prev: any) => ({
-          ...prev,
-          patients: prev.patients.filter((p: any) => p._id !== id),
-          total: prev.total - 1,
-        }))
-      }
+      if (res.success) setData((prev: any) => ({ ...prev, patients: prev.patients.filter((p: any) => p._id !== id), total: prev.total - 1 }))
     } catch (e) { console.error(e) }
     finally { setDeletingId(null) }
   }
@@ -55,29 +47,35 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
   return (
     <div>
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="bg-white rounded-xl border border-gray-200 p-3 mb-6 flex gap-2">
+      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-6 flex items-center gap-2">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-          </svg>
+          {loading ? (
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+          ) : (
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          )}
           <input
             type="text"
             placeholder="Search by name, phone or address..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {search && (
+            <button onClick={() => handleSearchChange("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          )}
         </div>
-        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-          Search
-        </button>
-        {search && (
-          <button type="button" onClick={() => { setSearch(""); fetchPatients("", 1) }}
-            className="border border-gray-300 text-gray-500 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
-            ✕
-          </button>
-        )}
-      </form>
+      </div>
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -187,8 +185,7 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
             <span className="text-sm text-gray-500">Page {page} of {data.totalPages}</span>
             <div className="flex gap-2">
               <button onClick={() => fetchPatients(search, page - 1)} disabled={page <= 1} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Prev</button>
-              <button onClick={() => fetchPatients(search, page + 1)} disabled={page >= data.totalPages} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Next</button>
-            </div>
+              <button onClick={() => fetchPatients(search, page + 1)} disabled={page >= data.totalPages} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Next</button>            </div>
           </div>
         )}
       </div>
