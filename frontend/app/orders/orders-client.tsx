@@ -95,67 +95,113 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
             <Link href="/orders/new" className="mt-3 text-blue-600 text-sm hover:underline">Create first order →</Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
-                <tr>
-                  <th className="px-6 py-3 text-left">Order ID</th>
-                  <th className="px-6 py-3 text-left">Patient</th>
-                  <th className="px-6 py-3 text-left">Items</th>
-                  <th className="px-6 py-3 text-left">Amount</th>
-                  <th className="px-6 py-3 text-left">Status</th>
-                  <th className="px-6 py-3 text-left">Date</th>
-                  <th className="px-6 py-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {data.orders.map((o: any) => {
-                  const patient = o.patientId as any
-                  const itemCount = (o.frames?.length || 0) + (o.lenses?.length || 0) + (o.drops?.length || 0)
-                  return (
-                    <tr
-                      key={o._id}
-                      onClick={() => router.push(`/orders/${o._id}`)}
-                      className="hover:bg-blue-50 cursor-pointer transition-colors"
-                    >
-                      <td className="px-6 py-4 font-mono text-xs text-gray-600">#{o._id.slice(-6).toUpperCase()}</td>
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-gray-900">{patient?.name || "—"}</p>
-                        <p className="text-xs text-gray-400">{patient?.phone}</p>
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">{itemCount} item{itemCount !== 1 ? "s" : ""}</td>
-                      <td className="px-6 py-4 font-medium text-gray-800">₹{o.totalAmount}</td>
-                      <td className="px-6 py-4">
-                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_COLORS[o.status] || "bg-gray-100 text-gray-700"}`}>
+          <>
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {data.orders.map((o: any) => {
+                const patient = o.patientId as any
+                const itemCount = (o.frames?.length || 0) + (o.lenses?.length || 0) + (o.drops?.length || 0)
+                return (
+                  <div
+                    key={o._id}
+                    onClick={() => router.push(`/orders/${o._id}`)}
+                    className="flex items-center justify-between px-4 py-4 hover:bg-blue-50 cursor-pointer transition-colors gap-3"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-mono text-xs text-gray-400">#{o._id.slice(-6).toUpperCase()}</span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${STATUS_COLORS[o.status] || "bg-gray-100 text-gray-700"}`}>
                           {o.isDelayed && o.status !== "Delivered" ? "⚠️ " : ""}{o.status}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString()}</td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={(e) => handleDelete(e, o._id)}
-                          disabled={deletingId === o._id}
-                          className="text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors p-1 rounded hover:bg-red-50"
-                          title="Delete order"
-                        >
-                          {deletingId === o._id ? (
-                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                            </svg>
-                          ) : (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                      <p className="font-medium text-gray-900 text-sm truncate">{patient?.name || "—"}</p>
+                      <p className="text-xs text-gray-400">{patient?.phone} · {itemCount} item{itemCount !== 1 ? "s" : ""} · ₹{o.totalAmount}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{new Date(o.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <button
+                      onClick={(e) => handleDelete(e, o._id)}
+                      disabled={deletingId === o._id}
+                      className="text-red-400 hover:text-red-600 disabled:opacity-40 p-2 rounded hover:bg-red-50 flex-shrink-0"
+                    >
+                      {deletingId === o._id ? (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                  <tr>
+                    <th className="px-6 py-3 text-left">Order ID</th>
+                    <th className="px-6 py-3 text-left">Patient</th>
+                    <th className="px-6 py-3 text-left">Items</th>
+                    <th className="px-6 py-3 text-left">Amount</th>
+                    <th className="px-6 py-3 text-left">Status</th>
+                    <th className="px-6 py-3 text-left">Date</th>
+                    <th className="px-6 py-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {data.orders.map((o: any) => {
+                    const patient = o.patientId as any
+                    const itemCount = (o.frames?.length || 0) + (o.lenses?.length || 0) + (o.drops?.length || 0)
+                    return (
+                      <tr
+                        key={o._id}
+                        onClick={() => router.push(`/orders/${o._id}`)}
+                        className="hover:bg-blue-50 cursor-pointer transition-colors"
+                      >
+                        <td className="px-6 py-4 font-mono text-xs text-gray-600">#{o._id.slice(-6).toUpperCase()}</td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-gray-900">{patient?.name || "—"}</p>
+                          <p className="text-xs text-gray-400">{patient?.phone}</p>
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">{itemCount} item{itemCount !== 1 ? "s" : ""}</td>
+                        <td className="px-6 py-4 font-medium text-gray-800">₹{o.totalAmount}</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_COLORS[o.status] || "bg-gray-100 text-gray-700"}`}>
+                            {o.isDelayed && o.status !== "Delivered" ? "⚠️ " : ""}{o.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={(e) => handleDelete(e, o._id)}
+                            disabled={deletingId === o._id}
+                            className="text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors p-1 rounded hover:bg-red-50"
+                            title="Delete order"
+                          >
+                            {deletingId === o._id ? (
+                              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                              </svg>
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {data.totalPages > 1 && (

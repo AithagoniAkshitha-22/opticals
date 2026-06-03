@@ -102,54 +102,91 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
             <Link href="/patients/new" className="mt-3 text-blue-600 text-sm hover:underline">Add first patient →</Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
-                <tr>
-                  <th className="px-6 py-3 text-left">Name</th>
-                  <th className="px-6 py-3 text-left">Phone</th>
-                  <th className="px-6 py-3 text-left">Age</th>
-                  <th className="px-6 py-3 text-left">Address</th>
-                  <th className="px-6 py-3 text-left">Registered</th>
-                  <th className="px-6 py-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {data.patients.map((p: any) => (
-                  <tr
-                    key={p._id}
-                    onClick={() => router.push(`/patients/${p._id}`)}
-                    className="hover:bg-blue-50 cursor-pointer transition-colors"
+          <>
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {data.patients.map((p: any) => (
+                <div
+                  key={p._id}
+                  onClick={() => router.push(`/patients/${p._id}`)}
+                  className="flex items-center justify-between px-4 py-4 hover:bg-blue-50 cursor-pointer transition-colors gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 text-sm truncate">{p.name}</p>
+                    <p className="text-xs text-gray-500">{p.phone} · Age {p.age}</p>
+                    <p className="text-xs text-gray-400 truncate">{p.address}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{new Date(p.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <button
+                    onClick={(e) => handleDelete(e, p._id, p.name)}
+                    disabled={deletingId === p._id}
+                    className="text-red-400 hover:text-red-600 disabled:opacity-40 p-2 rounded hover:bg-red-50 flex-shrink-0"
                   >
-                    <td className="px-6 py-4 font-medium text-gray-900">{p.name}</td>
-                    <td className="px-6 py-4 text-gray-600">{p.phone}</td>
-                    <td className="px-6 py-4 text-gray-600">{p.age}</td>
-                    <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate">{p.address}</td>
-                    <td className="px-6 py-4 text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={(e) => handleDelete(e, p._id, p.name)}
-                        disabled={deletingId === p._id}
-                        className="text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors p-1 rounded hover:bg-red-50"
-                        title="Delete patient"
-                      >
-                        {deletingId === p._id ? (
-                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                          </svg>
-                        ) : (
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                          </svg>
-                        )}
-                      </button>
-                    </td>
+                    {deletingId === p._id ? (
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                  <tr>
+                    <th className="px-6 py-3 text-left">Name</th>
+                    <th className="px-6 py-3 text-left">Phone</th>
+                    <th className="px-6 py-3 text-left">Age</th>
+                    <th className="px-6 py-3 text-left">Address</th>
+                    <th className="px-6 py-3 text-left">Registered</th>
+                    <th className="px-6 py-3 text-left">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {data.patients.map((p: any) => (
+                    <tr
+                      key={p._id}
+                      onClick={() => router.push(`/patients/${p._id}`)}
+                      className="hover:bg-blue-50 cursor-pointer transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-gray-900">{p.name}</td>
+                      <td className="px-6 py-4 text-gray-600">{p.phone}</td>
+                      <td className="px-6 py-4 text-gray-600">{p.age}</td>
+                      <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate">{p.address}</td>
+                      <td className="px-6 py-4 text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={(e) => handleDelete(e, p._id, p.name)}
+                          disabled={deletingId === p._id}
+                          className="text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors p-1 rounded hover:bg-red-50"
+                          title="Delete patient"
+                        >
+                          {deletingId === p._id ? (
+                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {/* Pagination */}
