@@ -25,6 +25,7 @@ export default function NewOrderForm() {
   )
   const [frameBrands, setFrameBrands] = useState<any[]>([])
   const [lensBrands, setLensBrands] = useState<any[]>([])
+  const [dropBrands, setDropBrands] = useState<any[]>([])
   const [frames, setFrames] = useState<FrameItem[]>([])
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
@@ -36,6 +37,7 @@ export default function NewOrderForm() {
   useEffect(() => {
     apiClient.getBrands("frame").then((r) => { if (r.success) setFrameBrands(r.data || []) })
     apiClient.getBrands("lens").then((r) => { if (r.success) setLensBrands(r.data || []) })
+    apiClient.getBrands("drop").then((r) => { if (r.success) setDropBrands(r.data || []) })
   }, [])
 
   const searchPatients = async (q: string) => {
@@ -200,9 +202,16 @@ export default function NewOrderForm() {
             <div className="space-y-3">
               {drops.map((d, i) => (
                 <div key={i} className="flex gap-3 items-center">
-                  <input type="text" value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
-                    placeholder="Drop name"
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  {dropBrands.length > 0 ? (
+                    <select value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                      {dropBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
+                    </select>
+                  ) : (
+                    <input type="text" value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
+                      placeholder="Drop name"
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  )}
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => { const n = [...drops]; n[i].quantity = Math.max(1, n[i].quantity - 1); setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">−</button>
                     <span className="w-8 text-center text-sm font-medium">{d.quantity}</span>

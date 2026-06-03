@@ -3,11 +3,12 @@
 import { useState } from "react"
 import { apiClient } from "@/lib/api"
 
-export default function BrandsClient({ initialFrameBrands, initialLensBrands }: { initialFrameBrands: any[]; initialLensBrands: any[] }) {
+export default function BrandsClient({ initialFrameBrands, initialLensBrands, initialDropBrands }: { initialFrameBrands: any[]; initialLensBrands: any[]; initialDropBrands: any[] }) {
   const [frameBrands, setFrameBrands] = useState(initialFrameBrands)
   const [lensBrands, setLensBrands] = useState(initialLensBrands)
+  const [dropBrands, setDropBrands] = useState(initialDropBrands)
   const [newName, setNewName] = useState("")
-  const [newType, setNewType] = useState<"frame" | "lens">("frame")
+  const [newType, setNewType] = useState<"frame" | "lens" | "drop">("frame")
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState("")
   const [saving, setSaving] = useState(false)
@@ -26,7 +27,8 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands }: 
       const res = await apiClient.createBrand({ name: newName.trim(), type: newType })
       if (res.success && res.data) {
         if (newType === "frame") setFrameBrands([...frameBrands, res.data])
-        else setLensBrands([...lensBrands, res.data])
+        else if (newType === "lens") setLensBrands([...lensBrands, res.data])
+        else setDropBrands([...dropBrands, res.data])
         setNewName("")
         flash(`${newType} brand "${res.data.name}" added!`)
       } else flash(res.error || "Failed to add brand", true)
@@ -34,14 +36,15 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands }: 
     finally { setSaving(false) }
   }
 
-  const saveBrand = async (id: string, type: "frame" | "lens") => {
+  const saveBrand = async (id: string, type: "frame" | "lens" | "drop") => {
     if (!editName.trim()) { flash("Brand name is required", true); return }
     setSaving(true)
     try {
       const res = await apiClient.updateBrand(id, editName.trim())
       if (res.success && res.data) {
         if (type === "frame") setFrameBrands(frameBrands.map((b) => b._id === id ? { ...b, name: editName.trim() } : b))
-        else setLensBrands(lensBrands.map((b) => b._id === id ? { ...b, name: editName.trim() } : b))
+        else if (type === "lens") setLensBrands(lensBrands.map((b) => b._id === id ? { ...b, name: editName.trim() } : b))
+        else setDropBrands(dropBrands.map((b) => b._id === id ? { ...b, name: editName.trim() } : b))
         setEditId(null)
         flash("Brand updated!")
       } else flash(res.error || "Failed to update", true)
@@ -49,7 +52,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands }: 
     finally { setSaving(false) }
   }
 
-  const BrandList = ({ brands, type }: { brands: any[]; type: "frame" | "lens" }) => (
+  const BrandList = ({ brands, type }: { brands: any[]; type: "frame" | "lens" | "drop" }) => (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 className="font-semibold text-gray-800 mb-4 capitalize">{type} Brands ({brands.length})</h2>
       {brands.length === 0 ? (
@@ -107,6 +110,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands }: 
           >
             <option value="frame">Frame Brand</option>
             <option value="lens">Lens Brand</option>
+            <option value="drop">Eye Drop</option>
           </select>
           <button
             onClick={addBrand}
@@ -121,6 +125,9 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands }: 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <BrandList brands={frameBrands} type="frame" />
         <BrandList brands={lensBrands} type="lens" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <BrandList brands={dropBrands} type="drop" />
       </div>
     </div>
   )

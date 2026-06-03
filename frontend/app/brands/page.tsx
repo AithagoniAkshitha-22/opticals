@@ -7,13 +7,15 @@ import BrandsClient from "./brands-client"
 export default function BrandsPage() {
   const [frameBrands, setFrameBrands] = useState<any[]>([])
   const [lensBrands, setLensBrands] = useState<any[]>([])
+  const [dropBrands, setDropBrands] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([apiClient.getBrands("frame"), apiClient.getBrands("lens")])
-      .then(([fr, lr]) => {
+    Promise.all([apiClient.getBrands("frame"), apiClient.getBrands("lens"), apiClient.getBrands("drop")])
+      .then(([fr, lr, dr]) => {
         if (fr.success) setFrameBrands(fr.data || [])
         if (lr.success) setLensBrands(lr.data || [])
+        if (dr.success) setDropBrands(dr.data || [])
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -34,9 +36,9 @@ export default function BrandsPage() {
     <div className="max-w-4xl mx-auto px-4 pt-4 pb-8 md:py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Brands Management</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage frame and lens brands used in orders</p>
+        <p className="text-gray-500 text-sm mt-1">Manage frame, lens and eye drop brands used in orders</p>
       </div>
-      <BrandsClient initialFrameBrands={frameBrands} initialLensBrands={lensBrands} />
+      <BrandsClient initialFrameBrands={frameBrands} initialLensBrands={lensBrands} initialDropBrands={dropBrands} />
     </div>
   )
 }

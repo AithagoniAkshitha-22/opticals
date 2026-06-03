@@ -111,11 +111,11 @@ class ApiClient {
   }
 
   // ── Brands ────────────────────────────────────────────────
-  async getBrands(type?: "frame" | "lens") {
+  async getBrands(type?: "frame" | "lens" | "drop") {
     return this.request(`/brands${type ? `?type=${type}` : ""}`)
   }
 
-  async createBrand(data: { name: string; type: "frame" | "lens" }) {
+  async createBrand(data: { name: string; type: "frame" | "lens" | "drop" }) {
     return this.request("/brands", { method: "POST", body: JSON.stringify(data) })
   }
 

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose"
 
 export interface IBrand extends Document {
   name: string
-  type: "frame" | "lens"
+  type: "frame" | "lens" | "drop"
   createdAt: Date
   updatedAt: Date
 }
@@ -10,7 +10,7 @@ export interface IBrand extends Document {
 const BrandSchema = new Schema<IBrand>(
   {
     name: { type: String, required: true, trim: true },
-    type: { type: String, enum: ["frame", "lens"], required: true },
+    type: { type: String, enum: ["frame", "lens", "drop"], required: true },
   },
   { timestamps: true }
 )
