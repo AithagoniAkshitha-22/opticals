@@ -35,7 +35,7 @@ export const createPatient = async (req: Request, res: Response): Promise<void> 
 // Get all patients with search/filter/pagination
 export const getPatients = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { page = 1, limit = 10, search = "", phone = "" } = req.query
+    const { page = 1, limit = 10, search = "" } = req.query
 
     const pageNum = Math.max(1, Number(page))
     const limitNum = Math.max(1, Math.min(50, Number(limit)))
@@ -46,10 +46,8 @@ export const getPatients = async (req: Request, res: Response): Promise<void> =>
       query.$or = [
         { name: { $regex: String(search).trim(), $options: "i" } },
         { address: { $regex: String(search).trim(), $options: "i" } },
+        { phone: { $regex: String(search).trim(), $options: "i" } },
       ]
-    }
-    if (phone) {
-      query.phone = { $regex: String(phone).trim(), $options: "i" }
     }
 
     const [patients, total] = await Promise.all([

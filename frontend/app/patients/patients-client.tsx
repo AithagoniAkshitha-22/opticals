@@ -9,15 +9,14 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
   const router = useRouter()
   const [data, setData] = useState(initialData)
   const [search, setSearch] = useState("")
-  const [phone, setPhone] = useState("")
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const fetchPatients = useCallback(async (s = search, p = phone, pg = 1) => {
+  const fetchPatients = useCallback(async (s = search, pg = 1) => {
     setLoading(true)
     try {
-      const res = await apiClient.getPatients({ search: s, phone: p, page: pg, limit: 10 })
+      const res = await apiClient.getPatients({ search: s, page: pg, limit: 10 })
       if (res.success && res.data) {
         setData(res.data)
         setPage(pg)
@@ -27,19 +26,18 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
     } finally {
       setLoading(false)
     }
-  }, [search, phone])
+  }, [search])
 
-  // Auto-fetch on mount
-  useEffect(() => { fetchPatients("", "", 1) }, [])
+  useEffect(() => { fetchPatients("", 1) }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchPatients(search, phone, 1)
+    fetchPatients(search, 1)
   }
 
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
     e.stopPropagation()
-    if (!confirm(`Hide patient "${name}"? They won't appear in the list but data is preserved.`)) return
+    if (!confirm(`Delete patient "${name}"? This cannot be undone.`)) return
     setDeletingId(id)
     try {
       const res = await apiClient.deletePatient(id)
@@ -57,34 +55,28 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
   return (
     <div>
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex flex-wrap gap-3">
-        <input
-          type="text"
-          placeholder="Search by name or address..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Filter by phone..."
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
+      <form onSubmit={handleSearch} className="bg-white rounded-xl border border-gray-200 p-3 mb-6 flex gap-2">
+        <div className="relative flex-1">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by name, phone or address..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
           Search
         </button>
-        <button
-          type="button"
-          onClick={() => { setSearch(""); setPhone(""); fetchPatients("", "", 1) }}
-          className="border border-gray-300 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm transition-colors"
-        >
-          Clear
-        </button>
+        {search && (
+          <button type="button" onClick={() => { setSearch(""); fetchPatients("", 1) }}
+            className="border border-gray-300 text-gray-500 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm transition-colors">
+            ✕
+          </button>
+        )}
       </form>
 
       {/* Table */}
@@ -194,20 +186,8 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
             <span className="text-sm text-gray-500">Page {page} of {data.totalPages}</span>
             <div className="flex gap-2">
-              <button
-                onClick={() => fetchPatients(search, phone, page - 1)}
-                disabled={page <= 1}
-                className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50"
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => fetchPatients(search, phone, page + 1)}
-                disabled={page >= data.totalPages}
-                className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50"
-              >
-                Next
-              </button>
+              <button onClick={() => fetchPatients(search, page - 1)} disabled={page <= 1} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Prev</button>
+              <button onClick={() => fetchPatients(search, page + 1)} disabled={page >= data.totalPages} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Next</button>
             </div>
           </div>
         )}
