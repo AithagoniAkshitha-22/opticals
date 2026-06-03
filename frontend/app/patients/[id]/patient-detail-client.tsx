@@ -283,7 +283,7 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                     </div>
                   ) : p.fileUrl ? (
                     <div>
-                      {/\.(jpg|jpeg|png|webp|gif)/i.test(p.fileUrl) ? (
+                      {!p.fileUrl.includes('/raw/') && !/\.pdf$/i.test(p.fileUrl) ? (
                         <button
                           onClick={() => openLightbox(p.fileUrl)}
                           className="block focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
@@ -389,7 +389,7 @@ function PrescriptionFileUpload({
   }
 
   if (fileUrl) {
-    const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(fileName) || fileUrl.includes("image")
+    const isImage = !fileUrl.includes('/raw/') && !/\.pdf$/i.test(fileUrl)
     return (
       <div className="border border-green-200 bg-green-50 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
