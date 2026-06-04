@@ -98,7 +98,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
             {brands.length === 0 ? (
               <p className="text-gray-400 text-sm px-5 py-4">No {TYPE_LABELS[type].toLowerCase()} yet.</p>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 overflow-y-auto" style={{ maxHeight: '240px' }}>
                 {brands.map((b) => (
                   <div key={b._id} className="flex items-center justify-between px-5 py-3">
                     {editId === b._id ? (
