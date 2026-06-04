@@ -9,9 +9,10 @@ import prescriptionRoutes from "./routes/prescriptionRoutes"
 import orderRoutes from "./routes/orderRoutes"
 import brandRoutes from "./routes/brandRoutes"
 import uploadRoutes from "./routes/uploadRoutes"
-dotenv.config()
-
+import authRoutes from "./routes/authRoutes"
 import { errorHandler, notFound } from "./middleware/errorHandler"
+
+dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 10000
@@ -27,13 +28,9 @@ const allowedOrigins = [
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Render health checks)
     if (!origin) return callback(null, true)
-    // Allow any vercel.app subdomain
     if (origin.endsWith(".vercel.app")) return callback(null, true)
-    // Allow any render.com subdomain
     if (origin.endsWith(".onrender.com")) return callback(null, true)
-    // Allow explicitly listed origins
     if (allowedOrigins.includes(origin)) return callback(null, true)
     callback(new Error("Not allowed by CORS"))
   },
@@ -45,12 +42,7 @@ const corsOptions: cors.CorsOptions = {
 
 app.use(cors(corsOptions))
 app.options("*", cors(corsOptions))
-
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  })
-)
+app.use(helmet({ contentSecurityPolicy: false }))
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -63,11 +55,7 @@ app.use(express.json({ limit: "20mb" }))
 app.use(express.urlencoded({ extended: true, limit: "20mb" }))
 
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Kasturi Eye Hospitals API is running",
-    timestamp: new Date().toISOString(),
-  })
+  res.status(200).json({ success: true, message: "Kasturi Eye Hospitals API is running", timestamp: new Date().toISOString() })
 })
 
 app.use("/api/patients", patientRoutes)
