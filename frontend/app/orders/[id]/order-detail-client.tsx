@@ -68,9 +68,15 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
   const closeLightbox = useCallback(() => setLightboxSrc(null), [])
 
   const savePayment = async () => {
+    const paid = Number(newAmountPaid) || 0
+    if (paid > order.totalAmount) {
+      setMsg(`Amount paid (₹${paid}) cannot exceed total amount (₹${order.totalAmount})`)
+      setTimeout(() => setMsg(""), 4000)
+      return
+    }
     setPaymentUpdating(true)
     try {
-      const res = await apiClient.updateOrderPayment(order._id, Number(newAmountPaid) || 0)
+      const res = await apiClient.updateOrderPayment(order._id, paid)
       if (res.success && res.data) { setOrder(res.data); setMsg("Payment updated!") }
       else setMsg(res.error || "Failed to update")
     } catch (e: any) { setMsg(e.message) }
@@ -255,14 +261,20 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
             <span className="text-gray-600">Amount Paid</span>
             {editingPayment ? (
               <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={newAmountPaid}
-                  onChange={(e) => setNewAmountPaid(e.target.value)}
-                  className="w-28 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button onClick={savePayment} disabled={paymentUpdating}
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="number"
+                    value={newAmountPaid}
+                    onChange={(e) => setNewAmountPaid(e.target.value)}
+                    max={order.totalAmount}
+                    className={`w-28 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${Number(newAmountPaid) > order.totalAmount ? "border-red-400 focus:ring-red-400" : "border-gray-300"}`}
+                    autoFocus
+                  />
+                  {Number(newAmountPaid) > order.totalAmount && (
+                    <span className="text-xs text-red-500">Exceeds total ₹{order.totalAmount}</span>
+                  )}
+                </div>
+                <button onClick={savePayment} disabled={paymentUpdating || Number(newAmountPaid) > order.totalAmount}
                   className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-3 py-1 rounded-lg text-xs font-medium">
                   {paymentUpdating ? "..." : "Save"}
                 </button>

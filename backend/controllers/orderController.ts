@@ -315,6 +315,10 @@ export const updatePayment = async (req: Request, res: Response): Promise<void> 
     const order = await Order.findById(id)
     if (!order) { res.status(404).json({ success: false, error: "Order not found" }); return }
     const paid = Math.max(0, Number(amountPaid) || 0)
+    if (paid > order.totalAmount) {
+      res.status(400).json({ success: false, error: `Amount paid (₹${paid}) cannot exceed total amount (₹${order.totalAmount})` })
+      return
+    }
     const due = Math.max(0, order.totalAmount - paid)
     order.amountPaid = paid
     order.dueAmount = due
