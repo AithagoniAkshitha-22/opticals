@@ -37,25 +37,30 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setError("")
     setSubmitting(true)
-    // Freeze AppShell — prevents dashboard from rendering during validation
     setChecking(true)
     try {
       const { auth, googleProvider } = await import("@/lib/firebase")
-      const { signInWithPopup, signOut, getAdditionalUserInfo } = await import("firebase/auth")
+      const { signInWithPopup, signOut } = await import("firebase/auth")
 
       const result = await signInWithPopup(auth, googleProvider)
-      const isNew = getAdditionalUserInfo(result)?.isNewUser
 
-      if (isNew) {
-        // Not pre-registered — delete auto-created account, deny access
-        try { await result.user.delete() } catch (_) {}
+      // Get ID token and verify with backend — backend checks if user is pre-registered
+      const idToken = await result.user.getIdToken()
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      })
+      const data = await res.json()
+
+      if (!data.success) {
+        // Backend rejected — user was deleted server-side, sign out client-side
         await signOut(auth)
         setChecking(false)
         setError("Access denied. Your account is not authorized to access this system.")
         return
       }
 
-      // Pre-registered — allow through
       setChecking(false)
       router.replace("/")
     } catch (err: any) {

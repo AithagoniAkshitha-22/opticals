@@ -9,9 +9,9 @@ import prescriptionRoutes from "./routes/prescriptionRoutes"
 import orderRoutes from "./routes/orderRoutes"
 import brandRoutes from "./routes/brandRoutes"
 import uploadRoutes from "./routes/uploadRoutes"
-import { errorHandler, notFound } from "./middleware/errorHandler"
-
 dotenv.config()
+
+import { errorHandler, notFound } from "./middleware/errorHandler"
 
 const app = express()
 const PORT = process.env.PORT || 10000
@@ -75,6 +75,7 @@ app.use("/api/prescriptions", prescriptionRoutes)
 app.use("/api/orders", orderRoutes)
 app.use("/api/brands", brandRoutes)
 app.use("/api/upload", uploadRoutes)
+app.use("/api/auth", authRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
