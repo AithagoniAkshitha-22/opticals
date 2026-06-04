@@ -39,8 +39,21 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       const { auth, googleProvider } = await import("@/lib/firebase")
-      const { signInWithPopup } = await import("firebase/auth")
-      await signInWithPopup(auth, googleProvider)
+      const { signInWithPopup, signOut, fetchSignInMethodsForEmail } = await import("firebase/auth")
+      const result = await signInWithPopup(auth, googleProvider)
+      // Check if this Google account was pre-registered in Firebase
+      const email = result.user.email ?? ""
+      const methods = await fetchSignInMethodsForEmail(auth, email)
+      // If the only method is google.com and it was just created (no prior sign-in), block it
+      // We use creationTime vs lastSignInTime — if equal, it's a brand new auto-created account
+      const meta = result.user.metadata
+      if (meta.creationTime === meta.lastSignInTime && !methods.includes("password")) {
+        // First-ever sign in via Google — not pre-registered, delete and deny
+        await result.user.delete()
+        await signOut(auth)
+        setError("Access denied. Your account is not authorized to access this system.")
+        return
+      }
       router.replace("/")
     } catch (err: any) {
       if (err.code !== "auth/popup-closed-by-user") {
