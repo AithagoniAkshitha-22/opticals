@@ -307,6 +307,31 @@ export const getMonthlyReport = async (req: Request, res: Response): Promise<voi
   }
 }
 
+// Update payment (amountPaid + recalculate dueAmount)
+export const updatePayment = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const { amountPaid } = req.body
+    const order = await Order.findById(id)
+    if (!order) { res.status(404).json({ success: false, error: "Order not found" }); return }
+    const paid = Math.max(0, Number(amountPaid) || 0)
+    const due = Math.max(0, order.totalAmount - paid)
+    order.amountPaid = paid
+    order.dueAmount = due
+    await order.save()
+    await AuditLog.create({
+      recordType: "Order", recordId: id, action: "update",
+      changedBy: req.headers["x-user"] || "staff",
+      description: `Payment updated: paid ₹${paid}, due ₹${due}`,
+      newValues: { amountPaid: paid, dueAmount: due },
+    })
+    res.status(200).json({ success: true, data: order, message: "Payment updated" })
+  } catch (error) {
+    console.error("Error updating payment:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}
+
 // Hard delete order
 export const softDeleteOrder = async (req: Request, res: Response): Promise<void> => {
   try {

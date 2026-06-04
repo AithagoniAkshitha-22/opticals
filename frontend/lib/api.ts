@@ -87,6 +87,10 @@ class ApiClient {
     return this.request(`/orders/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) })
   }
 
+  async updateOrderPayment(id: string, amountPaid: number) {
+    return this.request(`/orders/${id}/payment`, { method: "PUT", body: JSON.stringify({ amountPaid }) })
+  }
+
   async deleteOrder(id: string) {
     return this.request(`/orders/${id}`, { method: "DELETE" })
   }

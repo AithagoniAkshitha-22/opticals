@@ -56,6 +56,9 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
   const [msg, setMsg] = useState("")
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [lightboxAlt, setLightboxAlt] = useState("")
+  const [editingPayment, setEditingPayment] = useState(false)
+  const [newAmountPaid, setNewAmountPaid] = useState("")
+  const [paymentUpdating, setPaymentUpdating] = useState(false)
 
   const openLightbox = useCallback((src: string, alt: string) => {
     setLightboxSrc(src)
@@ -63,6 +66,16 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
   }, [])
 
   const closeLightbox = useCallback(() => setLightboxSrc(null), [])
+
+  const savePayment = async () => {
+    setPaymentUpdating(true)
+    try {
+      const res = await apiClient.updateOrderPayment(order._id, Number(newAmountPaid) || 0)
+      if (res.success && res.data) { setOrder(res.data); setMsg("Payment updated!") }
+      else setMsg(res.error || "Failed to update")
+    } catch (e: any) { setMsg(e.message) }
+    finally { setPaymentUpdating(false); setEditingPayment(false); setTimeout(() => setMsg(""), 3000) }
+  }
 
   const patient = order.patientId as any
 
@@ -232,22 +245,50 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
               ))}
             </div>
           )}
-          <div className="flex justify-between pt-3 font-semibold text-gray-900">
+          <div className="flex justify-between pt-3 font-semibold text-gray-900 border-t border-gray-100">
             <span>Total Amount</span>
             <span>₹{order.totalAmount}</span>
           </div>
-          {order.amountPaid > 0 && (
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Amount Paid</span>
-              <span className="text-green-600">₹{order.amountPaid}</span>
-            </div>
-          )}
-          {order.dueAmount > 0 && (
-            <div className="flex justify-between text-sm font-semibold">
-              <span className="text-orange-600">Due Amount</span>
-              <span className="text-orange-600">₹{order.dueAmount}</span>
-            </div>
-          )}
+
+          {/* Amount Paid — editable */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Amount Paid</span>
+            {editingPayment ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={newAmountPaid}
+                  onChange={(e) => setNewAmountPaid(e.target.value)}
+                  className="w-28 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  autoFocus
+                />
+                <button onClick={savePayment} disabled={paymentUpdating}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-3 py-1 rounded-lg text-xs font-medium">
+                  {paymentUpdating ? "..." : "Save"}
+                </button>
+                <button onClick={() => setEditingPayment(false)}
+                  className="border border-gray-300 text-gray-600 px-3 py-1 rounded-lg text-xs hover:bg-gray-50">
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-green-600 font-medium">₹{order.amountPaid || 0}</span>
+                {order.status !== "Delivered" && (
+                  <button onClick={() => { setNewAmountPaid(String(order.amountPaid || 0)); setEditingPayment(true) }}
+                    className="text-xs text-blue-600 hover:underline">Edit</button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Due Amount */}
+          <div className="flex justify-between text-sm font-semibold">
+            <span className={order.dueAmount > 0 ? "text-orange-600" : "text-green-600"}>Due Amount</span>
+            <span className={order.dueAmount > 0 ? "text-orange-600" : "text-green-600"}>
+              ₹{order.dueAmount || 0}
+            </span>
+          </div>
         </div>
       </div>
 
