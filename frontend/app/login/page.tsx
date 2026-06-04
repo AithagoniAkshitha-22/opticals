@@ -4,14 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 
-const ALLOWED_EMAILS = [
-  "kasturiopticals27@gmail.com",
-  "testing123@gmail.com",
-  "ayyapureddiharinadh@gmail.com",
-  "aithagoniakshitha223@gmail.com",
-  "harinadhayyapureddi@gmail.com",
-]
-
 export default function LoginPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
@@ -32,13 +24,8 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       const { auth } = await import("@/lib/firebase")
-      const { signInWithEmailAndPassword, signOut } = await import("firebase/auth")
-      const result = await signInWithEmailAndPassword(auth, email, password)
-      if (!ALLOWED_EMAILS.includes(result.user.email ?? "")) {
-        await signOut(auth)
-        setError("Access denied. This account is not authorized.")
-        return
-      }
+      const { signInWithEmailAndPassword } = await import("firebase/auth")
+      await signInWithEmailAndPassword(auth, email, password)
       router.replace("/")
     } catch (err: any) {
       setError(friendlyError(err.code))
@@ -52,13 +39,8 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       const { auth, googleProvider } = await import("@/lib/firebase")
-      const { signInWithPopup, signOut } = await import("firebase/auth")
-      const result = await signInWithPopup(auth, googleProvider)
-      if (!ALLOWED_EMAILS.includes(result.user.email ?? "")) {
-        await signOut(auth)
-        setError("Access denied. Only authorized accounts can sign in.")
-        return
-      }
+      const { signInWithPopup } = await import("firebase/auth")
+      await signInWithPopup(auth, googleProvider)
       router.replace("/")
     } catch (err: any) {
       if (err.code !== "auth/popup-closed-by-user") {
