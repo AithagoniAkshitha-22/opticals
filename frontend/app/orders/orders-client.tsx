@@ -116,6 +116,9 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                       </div>
                       <p className="font-medium text-gray-900 text-sm truncate">{patient?.name || "—"}</p>
                       <p className="text-xs text-gray-400">{patient?.phone} · {itemCount} item{itemCount !== 1 ? "s" : ""} · ₹{o.totalAmount}</p>
+                      {(o.status === "Ready for Pickup" || o.status === "Delayed") && o.dueAmount > 0 && (
+                        <p className="text-xs font-semibold text-orange-600 mt-0.5">Due: ₹{o.dueAmount}</p>
+                      )}
                       <p className="text-xs text-gray-400 mt-0.5">{new Date(o.createdAt).toLocaleDateString()}</p>
                     </div>
                     <button
@@ -169,7 +172,12 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                           <p className="text-xs text-gray-400">{patient?.phone}</p>
                         </td>
                         <td className="px-6 py-4 text-gray-600">{itemCount} item{itemCount !== 1 ? "s" : ""}</td>
-                        <td className="px-6 py-4 font-medium text-gray-800">₹{o.totalAmount}</td>
+                        <td className="px-6 py-4 font-medium text-gray-800">
+                          <div>₹{o.totalAmount}</div>
+                          {(o.status === "Ready for Pickup" || o.status === "Delayed") && o.dueAmount > 0 && (
+                            <div className="text-xs font-semibold text-orange-600">Due: ₹{o.dueAmount}</div>
+                          )}
+                        </td>
                         <td className="px-6 py-4">
                           <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_COLORS[o.status] || "bg-gray-100 text-gray-700"}`}>
                             {o.isDelayed && o.status !== "Delivered" ? "⚠️ " : ""}{o.status}

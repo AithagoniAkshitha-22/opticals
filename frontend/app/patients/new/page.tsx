@@ -35,6 +35,8 @@ export default function NewPatientPage() {
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
   const [totalAmount, setTotalAmount] = useState("")
+  const [amountPaid, setAmountPaid] = useState("")
+  const dueAmount = Math.max(0, (Number(totalAmount) || 0) - (Number(amountPaid) || 0))
   const [doctorName, setDoctorName] = useState("Dr. R. Jay Krishnan")
 
   const [loading, setLoading] = useState(false)
@@ -120,7 +122,9 @@ export default function NewPatientPage() {
         }))
         await apiClient.createOrder({
           patientId, frames: framesPayload, lenses, drops,
-          totalAmount: Number(totalAmount) || 0, doctorName,
+          totalAmount: Number(totalAmount) || 0,
+          amountPaid: Number(amountPaid) || 0,
+          doctorName,
         })
       }
 
@@ -329,11 +333,22 @@ export default function NewPatientPage() {
 
           {/* Pricing */}
           {(frames.length > 0 || lenses.length > 0 || drops.length > 0) && (
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
-                <input type="number" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} placeholder="0"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <div className="space-y-3 pt-2 border-t border-gray-100">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
+                  <input type="number" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} placeholder="0"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount Paid (₹)</label>
+                  <input type="number" value={amountPaid} onChange={(e) => setAmountPaid(e.target.value)} placeholder="0"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-lg px-4 py-2.5">
+                <span className="text-sm font-medium text-orange-700">Due Amount</span>
+                <span className="text-base font-bold text-orange-700">₹{dueAmount}</span>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Doctor Name</label>

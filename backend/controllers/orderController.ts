@@ -6,7 +6,7 @@ import AuditLog from "../models/AuditLog"
 // Create order
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { patientId, frames, lenses, drops, prescriptionFileUrl, prescriptionFileName, totalAmount, doctorName } =
+    const { patientId, frames, lenses, drops, prescriptionFileUrl, prescriptionFileName, totalAmount, amountPaid, doctorName } =
       req.body
 
     if (!patientId) {
@@ -35,6 +35,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       prescriptionFileUrl,
       prescriptionFileName,
       totalAmount: totalAmount || 0,
+      amountPaid: amountPaid || 0,
+      dueAmount: Math.max(0, (totalAmount || 0) - (amountPaid || 0)),
       doctorName: doctorName || "Dr. Kasturi",
       status: "Ordered",
       statusHistory: [{ status: "Ordered", changedAt: new Date(), changedBy: req.headers["x-user"] || "staff" }],

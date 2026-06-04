@@ -31,6 +31,8 @@ export interface IOrder extends Document {
   prescriptionFileUrl?: string
   prescriptionFileName?: string
   totalAmount: number
+  amountPaid: number
+  dueAmount: number
   status: OrderStatus
   statusHistory: { status: OrderStatus; changedAt: Date; changedBy?: string }[]
   whatsappLogs: IWhatsAppLog[]
@@ -69,6 +71,8 @@ const OrderSchema = new Schema<IOrder>(
     prescriptionFileUrl: { type: String },
     prescriptionFileName: { type: String },
     totalAmount: { type: Number, required: true, min: 0, default: 0 },
+    amountPaid: { type: Number, min: 0, default: 0 },
+    dueAmount: { type: Number, min: 0, default: 0 },
     status: {
       type: String,
       enum: ["Ordered", "Processing", "Ready for Pickup", "Delivered", "Delayed"],

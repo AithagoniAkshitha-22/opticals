@@ -30,6 +30,8 @@ export default function NewOrderForm() {
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
   const [totalAmount, setTotalAmount] = useState("")
+  const [amountPaid, setAmountPaid] = useState("")
+  const dueAmount = Math.max(0, (Number(totalAmount) || 0) - (Number(amountPaid) || 0))
   const [doctorName, setDoctorName] = useState("Dr. R. Jay Krishnan")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -94,7 +96,7 @@ export default function NewOrderForm() {
           return { ...rest, brand: rest.brand || "Unknown", imageUrl }
         })
       )
-      const res = await apiClient.createOrder({ patientId, frames: framesPayload, lenses, drops, totalAmount: Number(totalAmount) || 0, doctorName })
+      const res = await apiClient.createOrder({ patientId, frames: framesPayload, lenses, drops, totalAmount: Number(totalAmount) || 0, amountPaid: Number(amountPaid) || 0, doctorName })
       if (res.success && res.data) router.push(`/orders/${res.data._id}`)
       else setError(res.error || "Failed to create order")
     } catch (e: any) { setError(e.message) }
@@ -225,11 +227,22 @@ export default function NewOrderForm() {
         </div>
 
         {/* Pricing */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
-            <input type="number" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} placeholder="0"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
+              <input type="number" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} placeholder="0"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Amount Paid (₹)</label>
+              <input type="number" value={amountPaid} onChange={(e) => setAmountPaid(e.target.value)} placeholder="0"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-lg px-4 py-3">
+            <span className="text-sm font-medium text-orange-700">Due Amount</span>
+            <span className="text-lg font-bold text-orange-700">₹{dueAmount}</span>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Doctor Name</label>

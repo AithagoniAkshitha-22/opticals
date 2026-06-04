@@ -236,6 +236,18 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
             <span>Total Amount</span>
             <span>₹{order.totalAmount}</span>
           </div>
+          {order.amountPaid > 0 && (
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Amount Paid</span>
+              <span className="text-green-600">₹{order.amountPaid}</span>
+            </div>
+          )}
+          {order.dueAmount > 0 && (
+            <div className="flex justify-between text-sm font-semibold">
+              <span className="text-orange-600">Due Amount</span>
+              <span className="text-orange-600">₹{order.dueAmount}</span>
+            </div>
+          )}
         </div>
       </div>
 
