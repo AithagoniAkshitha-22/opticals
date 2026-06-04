@@ -30,6 +30,7 @@ export default function NewPatientPage() {
   // Order
   const [frameBrands, setFrameBrands] = useState<any[]>([])
   const [lensBrands, setLensBrands] = useState<any[]>([])
+  const [dropBrands, setDropBrands] = useState<any[]>([])
   const [frames, setFrames] = useState<FrameItem[]>([])
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
@@ -42,6 +43,7 @@ export default function NewPatientPage() {
   useEffect(() => {
     apiClient.getBrands("frame").then((r) => { if (r.success) setFrameBrands(r.data || []) })
     apiClient.getBrands("lens").then((r) => { if (r.success) setLensBrands(r.data || []) })
+    apiClient.getBrands("drop").then((r) => { if (r.success) setDropBrands(r.data || []) })
   }, [])
 
   const checkPhone = async () => {
@@ -297,15 +299,23 @@ export default function NewPatientPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Eye Drops</span>
-              <button type="button" onClick={() => setDrops([...drops, { name: "", quantity: 1 }])}
+              <button type="button" onClick={() => setDrops([...drops, { name: dropBrands[0]?.name || "", quantity: 1 }])}
                 className="text-blue-600 text-sm hover:underline">+ Add Drop</button>
             </div>
             {drops.length === 0 ? <p className="text-gray-400 text-xs">No drops added</p> : (
               <div className="space-y-2">
                 {drops.map((d, i) => (
                   <div key={i} className="flex gap-2 items-center">
-                    <input type="text" value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
-                      placeholder="Drop name" className="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    {dropBrands.length > 0 ? (
+                      <select value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
+                        className="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">Select drop</option>
+                        {dropBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
+                      </select>
+                    ) : (
+                      <input type="text" value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
+                        placeholder="Drop name" className="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    )}
                     <div className="flex items-center gap-1">
                       <button type="button" onClick={() => { const n = [...drops]; n[i].quantity = Math.max(1, n[i].quantity - 1); setDrops(n) }} className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center text-gray-600 hover:bg-gray-50">−</button>
                       <span className="w-6 text-center text-sm">{d.quantity}</span>
