@@ -19,6 +19,10 @@ let googleProvider: GoogleAuthProvider
 if (typeof window !== "undefined") {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
   auth = getAuth(app)
+  // Persist session in localStorage — survives browser restarts, lasts until explicit logout
+  import("firebase/auth").then(({ browserLocalPersistence, setPersistence }) => {
+    setPersistence(auth, browserLocalPersistence)
+  })
   googleProvider = new GoogleAuthProvider()
 }
 
