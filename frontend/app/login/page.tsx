@@ -9,7 +9,7 @@ const ALLOWED_EMAIL = "kasturiopticals27@gmail.com"
 export default function LoginPage() {
   const router = useRouter()
   const { user, loading } = useAuth()
-  const [email, setEmail] = useState(ALLOWED_EMAIL)
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
