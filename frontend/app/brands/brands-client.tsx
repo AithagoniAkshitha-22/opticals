@@ -149,28 +149,35 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
       {/* Add Brand */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
         <h2 className="font-semibold text-gray-800 mb-4">Add New Brand</h2>
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3">
           <input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addBrand()}
             placeholder="Brand name"
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <select
-            value={newType}
-            onChange={(e) => setNewType(e.target.value as "frame" | "lens" | "drop")}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-40"
-          >
-            <option value="frame">Frame Brand</option>
-            <option value="lens">Lens Brand</option>
-            <option value="drop">Eye Drop</option>
-          </select>
+          <div className="flex gap-2">
+            {(["frame", "lens", "drop"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setNewType(t)}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                  newType === t
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {t === "frame" ? "Frame" : t === "lens" ? "Lens" : "Eye Drop"}
+              </button>
+            ))}
+          </div>
           <button
             onClick={addBrand}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
           >
             {saving ? "Adding..." : "Add Brand"}
           </button>
