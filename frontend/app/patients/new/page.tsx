@@ -309,7 +309,6 @@ export default function NewPatientPage() {
                     {dropBrands.length > 0 ? (
                       <select value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
                         className="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">Select drop</option>
                         {dropBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
                       </select>
                     ) : (

@@ -50,7 +50,7 @@ export default function NewOrderForm() {
 
   const addFrame = () => setFrames([...frames, { brand: frameBrands[0]?.name || "", quantity: 1 }])
   const addLens = () => setLenses([...lenses, { brand: lensBrands[0]?.name || "", powerDetails: "" }])
-  const addDrop = () => setDrops([...drops, { name: "", quantity: 1 }])
+  const addDrop = () => setDrops([...drops, { name: dropBrands[0]?.name || "", quantity: 1 }])
 
   const handleFrameImage = (index: number, file: File | null) => {
     if (!file) {
