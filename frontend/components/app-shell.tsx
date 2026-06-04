@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context"
 import Header from "@/components/header"
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, checking } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
   const isLoginPage = pathname === "/login"
@@ -14,20 +14,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [settled, setSettled] = useState(false)
 
   useEffect(() => {
-    if (loading) { setSettled(false); return }
+    if (loading || checking) { setSettled(false); return }
     if (!user && !isLoginPage) {
       router.replace("/login")
-      // Keep showing spinner until navigation completes
       return
     }
     setSettled(true)
-  }, [user, loading, isLoginPage, router])
+  }, [user, loading, checking, isLoginPage, router])
 
-  // Login page — always render immediately, no auth needed
   if (isLoginPage) return <>{children}</>
 
-  // Show spinner while auth is resolving or navigation is in flight
-  if (loading || !settled || !user) {
+  if (loading || checking || !settled || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
