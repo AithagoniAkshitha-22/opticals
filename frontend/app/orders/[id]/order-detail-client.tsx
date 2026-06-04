@@ -113,7 +113,9 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
   const currentIdx = STATUS_FLOW.indexOf(order.status)
 
   return (
-    <div className="space-y-6">
+    <div>
+      {/* Screen content — hidden when printing */}
+      <div className="space-y-6 print:hidden">
       {lightboxSrc && <ImageLightbox src={lightboxSrc} alt={lightboxAlt} onClose={closeLightbox} />}
       {msg && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">{msg}</div>}
 
@@ -319,33 +321,81 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
         </div>
       )}
 
-      {/* Printable Invoice */}
-      <div id="invoice" className="hidden print:block bg-white p-8 text-sm">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold">Kasturi Eye Hospitals</h1>
-          <p className="text-gray-500">Invoice</p>
+      </div>{/* end print:hidden */}
+
+      {/* Printable Invoice — only this shows when printing */}
+      <div id="invoice" className="hidden print:block bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '13px', padding: '32px', maxWidth: '680px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', borderBottom: '2px solid #1d4ed8', paddingBottom: '16px', marginBottom: '20px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1d4ed8', margin: 0 }}>Kasturi Eye Hospitals</h1>
+          <p style={{ fontSize: '11px', color: '#6b7280', margin: '4px 0 0' }}>Invoice / Receipt</p>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+
+        {/* Order & Patient Info */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
           <div>
-            <p><strong>Patient:</strong> {patient?.name}</p>
-            <p><strong>Phone:</strong> {patient?.phone}</p>
-            <p><strong>Address:</strong> {patient?.address}</p>
+            <p style={{ margin: '3px 0' }}><strong>Patient:</strong> {patient?.name}</p>
+            <p style={{ margin: '3px 0' }}><strong>Phone:</strong> {patient?.phone}</p>
+            <p style={{ margin: '3px 0' }}><strong>Address:</strong> {patient?.address}</p>
           </div>
-          <div className="text-right">
-            <p><strong>Doctor:</strong> {order.doctorName}</p>
-            <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
-            <p><strong>Order #:</strong> {order._id.slice(-6).toUpperCase()}</p>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ margin: '3px 0' }}><strong>Order #:</strong> {order._id.slice(-6).toUpperCase()}</p>
+            <p style={{ margin: '3px 0' }}><strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString('en-IN')}</p>
+            <p style={{ margin: '3px 0' }}><strong>Doctor:</strong> {order.doctorName}</p>
           </div>
         </div>
-        <table className="w-full border-collapse mb-6">
-          <thead><tr className="border-b-2 border-gray-300"><th className="text-left py-2">Item</th><th className="text-left py-2">Details</th><th className="text-right py-2">Qty</th></tr></thead>
+
+        {/* Items Table */}
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#eff6ff', borderBottom: '2px solid #1d4ed8' }}>
+              <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: '12px' }}>Item</th>
+              <th style={{ textAlign: 'left', padding: '8px 10px', fontSize: '12px' }}>Details</th>
+              <th style={{ textAlign: 'right', padding: '8px 10px', fontSize: '12px' }}>Qty</th>
+            </tr>
+          </thead>
           <tbody>
-            {order.frames?.map((f: any, i: number) => <tr key={i} className="border-b border-gray-100"><td className="py-2">Frame</td><td className="py-2">{f.brand}</td><td className="py-2 text-right">{f.quantity}</td></tr>)}
-            {order.lenses?.map((l: any, i: number) => <tr key={i} className="border-b border-gray-100"><td className="py-2">Lens</td><td className="py-2">{l.brand} — {l.powerDetails}</td><td className="py-2 text-right">1</td></tr>)}
-            {order.drops?.map((d: any, i: number) => <tr key={i} className="border-b border-gray-100"><td className="py-2">Eye Drop</td><td className="py-2">{d.name}</td><td className="py-2 text-right">{d.quantity}</td></tr>)}
+            {order.frames?.map((f: any, i: number) => (
+              <tr key={`f${i}`} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <td style={{ padding: '7px 10px' }}>Frame</td>
+                <td style={{ padding: '7px 10px' }}>{f.brand}</td>
+                <td style={{ padding: '7px 10px', textAlign: 'right' }}>{f.quantity}</td>
+              </tr>
+            ))}
+            {order.lenses?.map((l: any, i: number) => (
+              <tr key={`l${i}`} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <td style={{ padding: '7px 10px' }}>Lens</td>
+                <td style={{ padding: '7px 10px' }}>{l.brand}{l.powerDetails ? ` — ${l.powerDetails}` : ''}</td>
+                <td style={{ padding: '7px 10px', textAlign: 'right' }}>1</td>
+              </tr>
+            ))}
+            {order.drops?.map((d: any, i: number) => (
+              <tr key={`d${i}`} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <td style={{ padding: '7px 10px' }}>Eye Drop</td>
+                <td style={{ padding: '7px 10px' }}>{d.name}</td>
+                <td style={{ padding: '7px 10px', textAlign: 'right' }}>{d.quantity}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
-        <div className="text-right text-lg font-bold">Total: ₹{order.totalAmount}</div>
+
+        {/* Billing Summary */}
+        <div style={{ marginLeft: 'auto', width: '240px', borderTop: '2px solid #1d4ed8', paddingTop: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px' }}>
+            <span>Total Amount</span><span>₹{order.totalAmount}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#16a34a' }}>
+            <span>Amount Paid</span><span>₹{order.amountPaid || 0}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: order.dueAmount > 0 ? '#ea580c' : '#16a34a', borderTop: '1px solid #e5e7eb', paddingTop: '6px' }}>
+            <span>Due Amount</span><span>₹{order.dueAmount || 0}</span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '12px', textAlign: 'center', color: '#9ca3af', fontSize: '11px' }}>
+          <p style={{ margin: 0 }}>Thank you for choosing Kasturi Eye Hospitals</p>
+        </div>
       </div>
     </div>
   )
