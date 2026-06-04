@@ -48,7 +48,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_FLOW = ["Ordered", "Processing", "Ready for Pickup", "Delivered"]
 
-export default function OrderDetailClient({ order: initialOrder }: { order: any }) {
+export default function OrderDetailClient({ order: initialOrder, prescription }: { order: any; prescription?: any }) {
   const [order, setOrder] = useState(initialOrder)
   const [updating, setUpdating] = useState(false)
   const [whatsappSending, setWhatsappSending] = useState(false)
@@ -344,6 +344,44 @@ export default function OrderDetailClient({ order: initialOrder }: { order: any 
             <p style={{ margin: '3px 0' }}><strong>Doctor:</strong> {order.doctorName}</p>
           </div>
         </div>
+
+        {/* Prescription Details — only if manual entry exists */}
+        {prescription && (prescription.rightEye || prescription.leftEye) && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid #e5e7eb', paddingBottom: '6px', marginBottom: '10px', color: '#374151' }}>Prescription</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#eff6ff' }}>
+                  <th style={{ padding: '6px 10px', textAlign: 'left' }}>Eye</th>
+                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>SPH</th>
+                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>CYL</th>
+                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>Axis</th>
+                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>Vision</th>
+                </tr>
+              </thead>
+              <tbody>
+                {prescription.rightEye && (
+                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '6px 10px', fontWeight: 'bold' }}>Right (OD)</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.sph ?? '—'}</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.cyl ?? '—'}</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.axis ?? '—'}</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.visionType || '—'}</td>
+                  </tr>
+                )}
+                {prescription.leftEye && (
+                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '6px 10px', fontWeight: 'bold' }}>Left (OS)</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.sph ?? '—'}</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.cyl ?? '—'}</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.axis ?? '—'}</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.visionType || '—'}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Items Table */}
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>

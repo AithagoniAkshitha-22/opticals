@@ -12,9 +12,20 @@ export default async function OrderDetailPage({
   const { id } = await params
 
   let order: any = null
+  let latestManualPrescription: any = null
   try {
     const res = await apiClient.getOrderById(id)
-    if (res.success && res.data) order = res.data
+    if (res.success && res.data) {
+      order = res.data
+      // Fetch latest manual prescription for the patient
+      const patientId = order.patientId?._id || order.patientId
+      if (patientId) {
+        const prescRes = await apiClient.getPatientPrescriptions(String(patientId))
+        if (prescRes.success && prescRes.data) {
+          latestManualPrescription = (prescRes.data as any[]).find((p: any) => p.type === "manual") || null
+        }
+      }
+    }
   } catch (e) {
     console.error(e)
   }
@@ -41,7 +52,7 @@ export default async function OrderDetailPage({
           #{order._id.slice(-6).toUpperCase()}
         </span>
       </div>
-      <OrderDetailClient order={order} />
+      <OrderDetailClient order={order} prescription={latestManualPrescription} />
     </div>
   )
 }
