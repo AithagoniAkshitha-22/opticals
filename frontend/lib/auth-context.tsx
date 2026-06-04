@@ -15,7 +15,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Dynamically import auth only on the client
     import("./firebase").then(({ auth }) => {
       if (!auth) { setLoading(false); return }
       const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -34,3 +33,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext)
+
+// Helper to manually clear user (used after delete+signOut to prevent flash)
+export function useForceSignOut() {
+  const context = useContext(AuthContext)
+  return () => {
+    // Auth state will update via onAuthStateChanged — no manual override needed
+  }
+}

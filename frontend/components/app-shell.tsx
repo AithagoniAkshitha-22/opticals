@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import Header from "@/components/header"
@@ -10,20 +10,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const isLoginPage = pathname === "/login"
+  // Extra settling flag — prevents flash while delete+signOut is in progress
+  const [settled, setSettled] = useState(false)
 
   useEffect(() => {
-    if (!loading && !user && !isLoginPage) {
+    if (loading) { setSettled(false); return }
+    if (!user && !isLoginPage) {
       router.replace("/login")
+      // Keep showing spinner until navigation completes
+      return
     }
+    setSettled(true)
   }, [user, loading, isLoginPage, router])
 
-  // Login page — render with no header, no guard
-  if (isLoginPage) {
-    return <>{children}</>
-  }
+  // Login page — always render immediately, no auth needed
+  if (isLoginPage) return <>{children}</>
 
-  // Still checking auth
-  if (loading) {
+  // Show spinner while auth is resolving or navigation is in flight
+  if (loading || !settled || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
@@ -34,10 +38,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Not logged in — show nothing while redirecting
-  if (!user) return null
-
-  // Logged in — show full app
+  // Authenticated — show full app
   return (
     <>
       <Header />

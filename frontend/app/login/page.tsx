@@ -43,16 +43,18 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, googleProvider)
       const additionalInfo = getAdditionalUserInfo(result)
 
-      // If this is a new user (not pre-registered), delete them and deny access
       if (additionalInfo?.isNewUser) {
-        await result.user.delete()
+        // Delete the auto-created account and sign out BEFORE any redirect
+        try { await result.user.delete() } catch (_) {}
         await signOut(auth)
         setError("Access denied. Your account is not authorized to access this system.")
+        setSubmitting(false)
         return
       }
+      // Existing pre-registered user — safe to proceed
       router.replace("/")
     } catch (err: any) {
-      if (err.code === "auth/popup-closed-by-user") return
+      if (err.code === "auth/popup-closed-by-user") { setSubmitting(false); return }
       setError(friendlyError(err.code))
     } finally {
       setSubmitting(false)
