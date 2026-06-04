@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { user, loading } = useAuth()
+  const { user, loading, setValidating } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -37,6 +37,8 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setError("")
     setSubmitting(true)
+    // Freeze auth state so AppShell doesn't react during validation
+    setValidating(true)
     try {
       const { auth, googleProvider } = await import("@/lib/firebase")
       const { signInWithPopup, signOut, getAdditionalUserInfo } = await import("firebase/auth")
@@ -44,17 +46,19 @@ export default function LoginPage() {
       const additionalInfo = getAdditionalUserInfo(result)
 
       if (additionalInfo?.isNewUser) {
-        // Delete the auto-created account and sign out BEFORE any redirect
+        // Not pre-registered — delete and deny before releasing the freeze
         try { await result.user.delete() } catch (_) {}
         await signOut(auth)
+        setValidating(false)
         setError("Access denied. Your account is not authorized to access this system.")
-        setSubmitting(false)
         return
       }
-      // Existing pre-registered user — safe to proceed
+      // Pre-registered — allow through
+      setValidating(false)
       router.replace("/")
     } catch (err: any) {
-      if (err.code === "auth/popup-closed-by-user") { setSubmitting(false); return }
+      setValidating(false)
+      if (err.code === "auth/popup-closed-by-user") return
       setError(friendlyError(err.code))
     } finally {
       setSubmitting(false)
