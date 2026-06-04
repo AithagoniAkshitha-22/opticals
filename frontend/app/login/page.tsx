@@ -54,10 +54,10 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (!data.success) {
-        // Backend rejected — user was deleted server-side, sign out client-side
         await signOut(auth)
         setChecking(false)
-        setError("Access denied. Your account is not authorized to access this system.")
+        setSubmitting(false)
+        setError("⛔ Access denied. Your account is not authorized to access this system.")
         return
       }
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
     }
   }
 
-  if (loading) return null
+  if (loading && !error) return null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
