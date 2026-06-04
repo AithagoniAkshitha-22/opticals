@@ -4,7 +4,13 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 
-const ALLOWED_EMAIL = "kasturiopticals27@gmail.com"
+const ALLOWED_EMAILS = [
+  "kasturiopticals27@gmail.com",
+  "testing123@gmail.com",
+  "ayyapureddiharinadh@gmail.com",
+  "aithagoniakshitha223@gmail.com",
+  "harinadhayyapureddi@gmail.com",
+]
 
 export default function LoginPage() {
   const router = useRouter()
@@ -28,7 +34,7 @@ export default function LoginPage() {
       const { auth } = await import("@/lib/firebase")
       const { signInWithEmailAndPassword, signOut } = await import("firebase/auth")
       const result = await signInWithEmailAndPassword(auth, email, password)
-      if (result.user.email !== ALLOWED_EMAIL) {
+      if (!ALLOWED_EMAILS.includes(result.user.email ?? "")) {
         await signOut(auth)
         setError("Access denied. This account is not authorized.")
         return
@@ -48,9 +54,9 @@ export default function LoginPage() {
       const { auth, googleProvider } = await import("@/lib/firebase")
       const { signInWithPopup, signOut } = await import("firebase/auth")
       const result = await signInWithPopup(auth, googleProvider)
-      if (result.user.email !== ALLOWED_EMAIL) {
+      if (!ALLOWED_EMAILS.includes(result.user.email ?? "")) {
         await signOut(auth)
-        setError("Access denied. Only the authorized account can sign in.")
+        setError("Access denied. Only authorized accounts can sign in.")
         return
       }
       router.replace("/")
