@@ -81,7 +81,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" style={{ maxHeight: 'calc(100vh - 220px)', display: 'flex', flexDirection: 'column' }}>
         <div className="px-6 py-4 border-b border-gray-100">
           <span className="text-sm text-gray-500">{data.total} order{data.total !== 1 ? "s" : ""}</span>
         </div>
@@ -143,7 +143,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto overflow-y-auto" style={{ maxHeight: '480px' }}>
+            <div className="hidden md:block overflow-x-auto overflow-y-auto flex-1">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-600 text-xs uppercase sticky top-0 z-10">
                   <tr>
