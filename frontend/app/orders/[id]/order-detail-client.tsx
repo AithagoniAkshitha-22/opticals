@@ -151,23 +151,41 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       setMsg("PDF downloaded — attach it in WhatsApp")
       setTimeout(() => {
         const phone = patient?.phone?.replace(/\D/g, "")
+        const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+
+        // Prescription lines
+        let prescLines = ""
+        if (prescription && (prescription.rightEye || prescription.leftEye)) {
+          prescLines = "\nPrescription"
+          if (prescription.rightEye) {
+            const re = prescription.rightEye
+            prescLines += `\nOD (Right): SPH ${re.sph ?? "-"} | CYL ${re.cyl ?? "-"} | Axis ${re.axis ?? "-"}`
+          }
+          if (prescription.leftEye) {
+            const le = prescription.leftEye
+            prescLines += `\nOS (Left): SPH ${le.sph ?? "-"} | CYL ${le.cyl ?? "-"} | Axis ${le.axis ?? "-"}`
+          }
+        }
+
+        // Order items
         const itemLines = [
-          ...(order.frames?.map((f: any) => `  - Frame: ${f.brand} x${f.quantity}`) || []),
-          ...(order.lenses?.map((l: any) => `  - Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
-          ...(order.drops?.map((d: any) => `  - Eye Drop: ${d.name} x${d.quantity}`) || []),
+          ...(order.frames?.map((f: any) => `Frame: ${f.brand} x${f.quantity}`) || []),
+          ...(order.lenses?.map((l: any) => `Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
+          ...(order.drops?.map((d: any) => `Eye Drop: ${d.name} x${d.quantity}`) || []),
         ].join("\n")
-        const dueLine = order.dueAmount > 0 ? `\nDue: Rs.${order.dueAmount}` : ""
+
+        const dueLine = order.dueAmount > 0 ? `\nDue Amount: Rs.${order.dueAmount}` : ""
+
         const msg =
-          `*Kasturi Eye Hospitals*\n` +
-          `*Invoice - Order #${order._id.slice(-6).toUpperCase()}*\n` +
-          `Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}\n\n` +
+          `KASTURI EYE HOSPITALS\n` +
+          `Date: ${dateStr}\n` +
           `Patient: ${patient?.name}\n` +
-          `Phone: ${patient?.phone}\n` +
-          `Doctor: ${order.doctorName}\n\n` +
-          `*Items:*\n${itemLines}\n\n` +
-          `Total: Rs.${order.totalAmount}\n` +
-          `Paid: Rs.${order.amountPaid || 0}${dueLine}\n\n` +
-          `_(Please find the PDF invoice attached)_`
+          `Doctor: ${order.doctorName}` +
+          `${prescLines}\n\n` +
+          `${itemLines}\n\n` +
+          `Total Amount: Rs.${order.totalAmount}\n` +
+          `Amount Paid: Rs.${order.amountPaid || 0}${dueLine}\n\n` +
+          `Thank you for choosing Kasturi Eye Hospitals.`
         window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
         setTimeout(() => setMsg(""), 5000)
       }, 1000)
