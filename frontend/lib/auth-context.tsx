@@ -1,57 +1,51 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, useRef } from "react"
-import { onAuthStateChanged, User } from "firebase/auth"
+import { createContext, useContext, useEffect, useState } from "react"
 
 interface AuthContextType {
-  user: User | null
+  isLoggedIn: boolean
   loading: boolean
-  checking: boolean        // true while Google sign-in is being validated
-  setChecking: (v: boolean) => void
+  login: (username: string, password: string) => boolean
+  logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
+  isLoggedIn: false,
   loading: true,
-  checking: false,
-  setChecking: () => {},
+  login: () => false,
+  logout: () => {},
 })
 
+const STORAGE_KEY = "keh_auth"
+const VALID_USERNAME = process.env.NEXT_PUBLIC_APP_USERNAME || "kasturi"
+const VALID_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || "kasturi123"
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [checking, setChecking] = useState(false)
-  const pendingUser = useRef<User | null>(null)
 
   useEffect(() => {
-    import("./firebase").then(({ auth }) => {
-      if (!auth) { setLoading(false); return }
+    const stored = localStorage.getItem(STORAGE_KEY)
+    setIsLoggedIn(stored === "true")
+    setLoading(false)
+  }, [])
 
-      const unsubscribe = onAuthStateChanged(auth, (u) => {
-        if (checking) {
-          // Store pending user but don't commit it yet
-          pendingUser.current = u
-          return
-        }
-        setUser(u)
-        setLoading(false)
-      })
-
-      return () => unsubscribe()
-    })
-  }, [checking])
-
-  const handleSetChecking = (v: boolean) => {
-    setChecking(v)
-    if (!v) {
-      // Checking done — commit the pending auth state
-      setUser(pendingUser.current)
-      setLoading(false)
+  const login = (username: string, password: string): boolean => {
+    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+      localStorage.setItem(STORAGE_KEY, "true")
+      setIsLoggedIn(true)
+      return true
     }
+    return false
+  }
+
+  const logout = () => {
+    localStorage.removeItem(STORAGE_KEY)
+    setIsLoggedIn(false)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, checking, setChecking: handleSetChecking }}>
+    <AuthContext.Provider value={{ isLoggedIn, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
