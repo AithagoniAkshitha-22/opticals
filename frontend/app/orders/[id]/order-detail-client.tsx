@@ -121,81 +121,43 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
   const [pdfGenerating, setPdfGenerating] = useState(false)
 
-  const sendInvoiceWhatsApp = async () => {
-    try {
-      setPdfGenerating(true)
-      const html2pdf = (await import("html2pdf.js")).default
-      const element = document.getElementById("invoice")
-      if (!element) return
+  const sendInvoiceWhatsApp = () => {
+    const phone = patient?.phone?.replace(/\D/g, "")
+    const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
 
-      const opt = {
-        margin: 10,
-        filename: `Invoice-${order._id.slice(-6).toUpperCase()}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    let prescLines = ""
+    if (prescription && (prescription.rightEye || prescription.leftEye)) {
+      prescLines = "\nPrescription"
+      if (prescription.rightEye) {
+        const re = prescription.rightEye
+        prescLines += `\nOD (Right): SPH ${re.sph ?? "-"} | CYL ${re.cyl ?? "-"} | Axis ${re.axis ?? "-"}`
       }
-
-      if (navigator.share && navigator.canShare) {
-        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob")
-        const file = new File([pdfBlob], `Invoice-${order._id.slice(-6).toUpperCase()}.pdf`, { type: "application/pdf" })
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: `Invoice - Kasturi Eye Hospitals`, text: `Invoice for ${patient?.name}` })
-          setMsg("PDF shared!")
-          setTimeout(() => setMsg(""), 3000)
-          return
-        }
+      if (prescription.leftEye) {
+        const le = prescription.leftEye
+        prescLines += `\nOS (Left): SPH ${le.sph ?? "-"} | CYL ${le.cyl ?? "-"} | Axis ${le.axis ?? "-"}`
       }
-
-      await html2pdf().set(opt).from(element).save()
-      setMsg("PDF downloaded — attach it in WhatsApp")
-      setTimeout(() => {
-        const phone = patient?.phone?.replace(/\D/g, "")
-        const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-
-        // Prescription lines
-        let prescLines = ""
-        if (prescription && (prescription.rightEye || prescription.leftEye)) {
-          prescLines = "\nPrescription"
-          if (prescription.rightEye) {
-            const re = prescription.rightEye
-            prescLines += `\nOD (Right): SPH ${re.sph ?? "-"} | CYL ${re.cyl ?? "-"} | Axis ${re.axis ?? "-"}`
-          }
-          if (prescription.leftEye) {
-            const le = prescription.leftEye
-            prescLines += `\nOS (Left): SPH ${le.sph ?? "-"} | CYL ${le.cyl ?? "-"} | Axis ${le.axis ?? "-"}`
-          }
-        }
-
-        // Order items
-        const itemLines = [
-          ...(order.frames?.map((f: any) => `Frame: ${f.brand} x${f.quantity}`) || []),
-          ...(order.lenses?.map((l: any) => `Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
-          ...(order.drops?.map((d: any) => `Eye Drop: ${d.name} x${d.quantity}`) || []),
-        ].join("\n")
-
-        const dueLine = order.dueAmount > 0 ? `\nDue Amount: Rs.${order.dueAmount}` : ""
-
-        const msg =
-          `KASTURI EYE HOSPITALS\n` +
-          `Date: ${dateStr}\n` +
-          `Patient: ${patient?.name}\n` +
-          `Doctor: ${order.doctorName}` +
-          `${prescLines}\n\n` +
-          `${itemLines}\n\n` +
-          `Total Amount: Rs.${order.totalAmount}\n` +
-          `Amount Paid: Rs.${order.amountPaid || 0}${dueLine}\n\n` +
-          `Thank you for choosing Kasturi Eye Hospitals.`
-        window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
-        setTimeout(() => setMsg(""), 5000)
-      }, 1000)
-
-    } catch (e: any) {
-      setMsg("Failed to generate PDF")
-      setTimeout(() => setMsg(""), 3000)
-    } finally {
-      setPdfGenerating(false)
     }
+
+    const itemLines = [
+      ...(order.frames?.map((f: any) => `Frame: ${f.brand} x${f.quantity}`) || []),
+      ...(order.lenses?.map((l: any) => `Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
+      ...(order.drops?.map((d: any) => `Eye Drop: ${d.name} x${d.quantity}`) || []),
+    ].join("\n")
+
+    const dueLine = order.dueAmount > 0 ? `\nDue Amount: Rs.${order.dueAmount}` : ""
+
+    const msg =
+      `KASTURI EYE HOSPITALS\n` +
+      `Date: ${dateStr}\n` +
+      `Patient: ${patient?.name}\n` +
+      `Doctor: ${order.doctorName}` +
+      `${prescLines}\n\n` +
+      `${itemLines}\n\n` +
+      `Total Amount: Rs.${order.totalAmount}\n` +
+      `Amount Paid: Rs.${order.amountPaid || 0}${dueLine}\n\n` +
+      `Thank you for choosing Kasturi Eye Hospitals.`
+
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
   }
 
   const printInvoice = () => window.print()
@@ -240,7 +202,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
               disabled={pdfGenerating}
               className="border border-green-300 text-green-700 hover:bg-green-50 disabled:opacity-60 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
             >
-              {pdfGenerating ? "⏳ Generating..." : "📲 Send PDF Invoice"}
+              Send Invoice
             </button>
           </div>
         </div>
