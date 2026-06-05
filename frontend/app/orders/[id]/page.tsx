@@ -42,7 +42,7 @@ export default async function OrderDetailPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 pt-4 pb-24 md:pb-8">
       <div className="flex items-center gap-3 mb-6">
         <Link href="/orders" className="text-gray-400 hover:text-gray-600 text-sm">
           ← Orders

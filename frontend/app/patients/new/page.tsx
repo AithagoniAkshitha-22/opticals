@@ -137,7 +137,7 @@ export default function NewPatientPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-4 pt-4 pb-24 md:pb-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">New Patient</h1>
         <p className="text-gray-500 text-sm mt-1">Register patient, add prescription and order in one step</p>
