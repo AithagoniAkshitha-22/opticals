@@ -154,7 +154,24 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       setMsg("PDF downloaded — attach it in WhatsApp")
       setTimeout(() => {
         const phone = patient?.phone?.replace(/\D/g, "")
-        window.open(`https://wa.me/91${phone}`, "_blank")
+        const itemLines = [
+          ...(order.frames?.map((f: any) => `  - Frame: ${f.brand} x${f.quantity}`) || []),
+          ...(order.lenses?.map((l: any) => `  - Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
+          ...(order.drops?.map((d: any) => `  - Eye Drop: ${d.name} x${d.quantity}`) || []),
+        ].join("\n")
+        const dueLine = order.dueAmount > 0 ? `\nDue: Rs.${order.dueAmount}` : ""
+        const msg =
+          `*Kasturi Eye Hospitals*\n` +
+          `*Invoice - Order #${order._id.slice(-6).toUpperCase()}*\n` +
+          `Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}\n\n` +
+          `Patient: ${patient?.name}\n` +
+          `Phone: ${patient?.phone}\n` +
+          `Doctor: ${order.doctorName}\n\n` +
+          `*Items:*\n${itemLines}\n\n` +
+          `Total: Rs.${order.totalAmount}\n` +
+          `Paid: Rs.${order.amountPaid || 0}${dueLine}\n\n` +
+          `_(Please find the PDF invoice attached)_`
+        window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
         setTimeout(() => setMsg(""), 5000)
       }, 1000)
 
