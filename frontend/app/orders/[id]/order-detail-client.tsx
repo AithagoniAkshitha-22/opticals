@@ -96,7 +96,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
           setTimeout(() => {
             if (window.confirm(`Send thank you WhatsApp message to ${patient.name}?`)) {
               const message =
-                `Order Delivered! 🎉\nHi ${patient.name}, your glasses 👓 are delivered.\n🏥 Kasturi Eye Hospitals thanks you.\n😊 See you again soon!`
+                `Order Delivered!\nHi ${patient.name}, your glasses are ready and delivered.\nThank you for choosing Kasturi Eye Hospitals.\nSee you again soon!`
               window.open(`https://wa.me/91${patient.phone}?text=${encodeURIComponent(message)}`, "_blank")
             }
           }, 500)
