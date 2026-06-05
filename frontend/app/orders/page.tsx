@@ -3,8 +3,8 @@ import OrdersClient from "./orders-client"
 
 export default function OrdersPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 md:py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="h-[calc(100vh-64px)] flex flex-col px-4 pt-4 pb-2 max-w-7xl mx-auto overflow-hidden">
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
           <p className="text-gray-500 text-sm mt-1">Track and manage all orders</p>
@@ -17,7 +17,9 @@ export default function OrdersPage() {
           New Order
         </Link>
       </div>
-      <OrdersClient initialData={{ orders: [], total: 0, page: 1, totalPages: 1 }} />
+      <div className="flex-1 min-h-0 flex flex-col">
+        <OrdersClient initialData={{ orders: [], total: 0, page: 1, totalPages: 1 }} />
+      </div>
     </div>
   )
 }

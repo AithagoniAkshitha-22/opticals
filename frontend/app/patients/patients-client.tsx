@@ -45,9 +45,9 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
   }
 
   return (
-    <div>
+    <div className="flex-1 min-h-0 flex flex-col">
       {/* Search Bar */}
-      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-6 flex items-center gap-2">
+      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4 flex items-center gap-2 flex-shrink-0">
         <div className="relative flex-1">
           {loading ? (
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" style={{ maxHeight: 'calc(100vh - 220px)', display: 'flex', flexDirection: 'column' }}>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <span className="text-sm text-gray-500">{data.total} patient{data.total !== 1 ? "s" : ""} found</span>
         </div>

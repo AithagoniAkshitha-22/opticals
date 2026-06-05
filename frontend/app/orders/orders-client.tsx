@@ -54,9 +54,9 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
   }
 
   return (
-    <div>
+    <div className="flex-1 min-h-0 flex flex-col">
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex flex-wrap gap-3 items-center">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap gap-3 items-center flex-shrink-0">
         <input
           type="text"
           placeholder="Search patient name or phone..."
@@ -81,7 +81,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" style={{ maxHeight: 'calc(100vh - 220px)', display: 'flex', flexDirection: 'column' }}>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
         <div className="px-6 py-4 border-b border-gray-100">
           <span className="text-sm text-gray-500">{data.total} order{data.total !== 1 ? "s" : ""}</span>
         </div>
