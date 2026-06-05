@@ -89,8 +89,23 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     setUpdating(true)
     try {
       const res = await apiClient.updateOrderStatus(order._id, status)
-      if (res.success && res.data) { setOrder(res.data); setMsg("Status updated!") }
-      else setMsg(res.error || "Failed to update")
+      if (res.success && res.data) {
+        setOrder(res.data)
+        setMsg("Status updated!")
+        if (status === "Delivered" && patient?.phone) {
+          setTimeout(() => {
+            if (window.confirm(`Send thank you WhatsApp message to ${patient.name}?`)) {
+              const message =
+                `🙏 *Thank you, ${patient.name}!*\n\n` +
+                `Your order from *Kasturi Eye Hospitals* has been delivered successfully.\n\n` +
+                `We appreciate your trust in us. Take care of your eyes! 👁️\n\n` +
+                `For any queries, feel free to contact us.\n` +
+                `— Team Kasturi Eye Hospitals`
+              window.open(`https://wa.me/91${patient.phone}?text=${encodeURIComponent(message)}`, "_blank")
+            }
+          }, 500)
+        }
+      } else setMsg(res.error || "Failed to update")
     } catch (e: any) { setMsg(e.message) }
     finally { setUpdating(false); setTimeout(() => setMsg(""), 3000) }
   }
@@ -106,6 +121,25 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       }
     } catch (e: any) { setMsg(e.message) }
     finally { setWhatsappSending(false); setTimeout(() => setMsg(""), 3000) }
+  }
+
+  const sendInvoiceWhatsApp = () => {
+    const itemLines = [
+      ...(order.frames?.map((f: any) => `• Frame: ${f.brand} (Qty: ${f.quantity})`) || []),
+      ...(order.lenses?.map((l: any) => `• Lens: ${l.brand}${l.powerDetails ? ` - ${l.powerDetails}` : ""}`) || []),
+      ...(order.drops?.map((d: any) => `• Eye Drop: ${d.name} (Qty: ${d.quantity})`) || []),
+    ].join("\n")
+    const dueText = order.dueAmount > 0 ? `\n💰 Due Amount: ₹${order.dueAmount}` : ""
+    const message =
+      `🏥 *Kasturi Eye Hospitals*\n` +
+      `📋 *Invoice - Order #${order._id.slice(-6).toUpperCase()}*\n` +
+      `📅 Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}\n\n` +
+      `👤 Patient: ${patient?.name}\n` +
+      `👨‍⚕️ Doctor: ${order.doctorName}\n\n` +
+      `*Order Items:*\n${itemLines}\n\n` +
+      `💵 Total: ₹${order.totalAmount}\n` +
+      `✅ Paid: ₹${order.amountPaid || 0}${dueText}`
+    window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
   }
 
   const printInvoice = () => window.print()
@@ -144,6 +178,12 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
               className="border border-gray-300 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
             >
               🖨️ Invoice
+            </button>
+            <button
+              onClick={sendInvoiceWhatsApp}
+              className="border border-green-300 text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+            >
+              📲 Invoice to WhatsApp
             </button>
           </div>
         </div>
