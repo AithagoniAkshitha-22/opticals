@@ -28,7 +28,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const [open, setOpen] = useState<Record<string, boolean>>({ frame: true, lens: true, drop: true })
+  const [open, setOpen] = useState<Record<string, boolean>>({ frame: false, lens: false, drop: false })
 
   const flash = (msg: string, isError = false) => {
     if (isError) { setError(msg); setTimeout(() => setError(""), 3000) }

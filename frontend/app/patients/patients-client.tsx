@@ -94,7 +94,7 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
         ) : (
           <>
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-gray-100 overflow-y-auto flex-1">
               {data.patients.map((p: any) => (
                 <div
                   key={p._id}

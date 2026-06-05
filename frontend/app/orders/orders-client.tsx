@@ -97,7 +97,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
         ) : (
           <>
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-gray-100 overflow-y-auto flex-1">
               {data.orders.map((o: any) => {
                 const patient = o.patientId as any
                 const itemCount = (o.frames?.length || 0) + (o.lenses?.length || 0) + (o.drops?.length || 0)
