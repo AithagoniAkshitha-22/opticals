@@ -54,10 +54,9 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col">
+    <div>
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap gap-3 items-center flex-shrink-0">
-        <input
+      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap gap-3 items-center">        <input
           type="text"
           placeholder="Search patient name or phone..."
           value={search}
@@ -81,7 +80,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
           <span className="text-sm text-gray-500">{data.total} order{data.total !== 1 ? "s" : ""}</span>
         </div>
@@ -97,7 +96,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
         ) : (
           <>
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-gray-100 overflow-y-auto flex-1">
+            <div className="md:hidden divide-y divide-gray-100">
               {data.orders.map((o: any) => {
                 const patient = o.patientId as any
                 const itemCount = (o.frames?.length || 0) + (o.lenses?.length || 0) + (o.drops?.length || 0)
