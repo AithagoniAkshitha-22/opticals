@@ -143,9 +143,9 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto overflow-y-auto" style={{ maxHeight: '480px' }}>
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                <thead className="bg-gray-50 text-gray-600 text-xs uppercase sticky top-0 z-10">
                   <tr>
                     <th className="px-6 py-3 text-left">Order ID</th>
                     <th className="px-6 py-3 text-left">Patient</th>
