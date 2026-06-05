@@ -127,7 +127,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
     let prescLines = ""
     if (prescription && (prescription.rightEye || prescription.leftEye)) {
-      prescLines = "\nPrescription"
+      prescLines = "\n*Prescription*"
       if (prescription.rightEye) {
         const re = prescription.rightEye
         prescLines += `\nOD (Right): SPH ${re.sph ?? "-"} | CYL ${re.cyl ?? "-"} | Axis ${re.axis ?? "-"}`
@@ -147,14 +147,15 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     const dueLine = order.dueAmount > 0 ? `\nDue Amount: Rs.${order.dueAmount}` : ""
 
     const msg =
-      `KASTURI EYE HOSPITALS\n` +
+      `*KASTURI EYE HOSPITALS*\n` +
       `Date: ${dateStr}\n` +
       `Patient: ${patient?.name}\n` +
-      `Doctor: ${order.doctorName}` +
-      `${prescLines}\n\n` +
+      `Doctor: ${order.doctorName}\n` +
+      `${prescLines}\n` +
+      `*Order Items*\n` +
       `${itemLines}\n\n` +
-      `Total Amount: Rs.${order.totalAmount}\n` +
-      `Amount Paid: Rs.${order.amountPaid || 0}${dueLine}\n\n` +
+      `*Total Amount:* Rs.${order.totalAmount}\n` +
+      `*Amount Paid:* Rs.${order.amountPaid || 0}${dueLine}\n\n` +
       `Thank you for choosing Kasturi Eye Hospitals.`
 
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
