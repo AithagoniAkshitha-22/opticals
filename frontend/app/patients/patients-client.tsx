@@ -78,7 +78,7 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" style={{ maxHeight: 'calc(100vh - 220px)', display: 'flex', flexDirection: 'column' }}>
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <span className="text-sm text-gray-500">{data.total} patient{data.total !== 1 ? "s" : ""} found</span>
         </div>
@@ -128,9 +128,9 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto overflow-y-auto flex-1">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                <thead className="bg-gray-50 text-gray-600 text-xs uppercase sticky top-0 z-10">
                   <tr>
                     <th className="px-6 py-3 text-left">Name</th>
                     <th className="px-6 py-3 text-left">Phone</th>
