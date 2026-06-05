@@ -122,10 +122,11 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     finally { setWhatsappSending(false); setTimeout(() => setMsg(""), 3000) }
   }
 
+  const [pdfGenerating, setPdfGenerating] = useState(false)
+
   const sendInvoiceWhatsApp = async () => {
-    // Generate PDF from the invoice element and download it
-    // Then open WhatsApp so user can attach the downloaded PDF
     try {
+      setPdfGenerating(true)
       const html2pdf = (await import("html2pdf.js")).default
       const element = document.getElementById("invoice")
       if (!element) return
@@ -138,25 +139,30 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       }
 
-      // Download the PDF
+      if (navigator.share && navigator.canShare) {
+        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob")
+        const file = new File([pdfBlob], `Invoice-${order._id.slice(-6).toUpperCase()}.pdf`, { type: "application/pdf" })
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: `Invoice - Kasturi Eye Hospitals`, text: `Invoice for ${patient?.name}` })
+          setMsg("PDF shared!")
+          setTimeout(() => setMsg(""), 3000)
+          return
+        }
+      }
+
       await html2pdf().set(opt).from(element).save()
-
-      // Open WhatsApp after a short delay so PDF downloads first
+      setMsg("PDF downloaded — attach it in WhatsApp")
       setTimeout(() => {
-        const message =
-          `🏥 *Kasturi Eye Hospitals*\n` +
-          `📋 Invoice for Order #${order._id.slice(-6).toUpperCase()}\n` +
-          `👤 Patient: ${patient?.name}\n` +
-          `💵 Total: ₹${order.totalAmount} | ✅ Paid: ₹${order.amountPaid || 0}${order.dueAmount > 0 ? ` | 💰 Due: ₹${order.dueAmount}` : ""}\n\n` +
-          `Please find the invoice PDF attached.`
-        window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
-      }, 1500)
+        const phone = patient?.phone?.replace(/\D/g, "")
+        window.open(`https://wa.me/91${phone}`, "_blank")
+        setTimeout(() => setMsg(""), 5000)
+      }, 1000)
 
-      setMsg("PDF downloaded! Attach it in WhatsApp.")
-      setTimeout(() => setMsg(""), 5000)
     } catch (e: any) {
       setMsg("Failed to generate PDF")
       setTimeout(() => setMsg(""), 3000)
+    } finally {
+      setPdfGenerating(false)
     }
   }
 
@@ -199,9 +205,10 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             </button>
             <button
               onClick={sendInvoiceWhatsApp}
-              className="border border-green-300 text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              disabled={pdfGenerating}
+              className="border border-green-300 text-green-700 hover:bg-green-50 disabled:opacity-60 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
             >
-              📲 Send PDF Invoice
+              {pdfGenerating ? "⏳ Generating..." : "📲 Send PDF Invoice"}
             </button>
           </div>
         </div>
