@@ -45,6 +45,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "8.5.1",
     "firebase": "^10.14.1",
+    "html2pdf.js": "^0.10.2",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "next": "^15.3.2",

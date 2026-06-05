@@ -96,11 +96,10 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
           setTimeout(() => {
             if (window.confirm(`Send thank you WhatsApp message to ${patient.name}?`)) {
               const message =
-                `🙏 *Thank you, ${patient.name}!*\n\n` +
-                `Your order from *Kasturi Eye Hospitals* has been delivered successfully.\n\n` +
-                `We appreciate your trust in us. Take care of your eyes! 👁️\n\n` +
-                `For any queries, feel free to contact us.\n` +
-                `— Team Kasturi Eye Hospitals`
+                `✅ *Order Delivered!*\n\n` +
+                `Hi ${patient.name} 👋, your glasses are delivered!\n` +
+                `🏥 *Kasturi Eye Hospitals* thanks you.\n` +
+                `👁️ See you again soon!`
               window.open(`https://wa.me/91${patient.phone}?text=${encodeURIComponent(message)}`, "_blank")
             }
           }, 500)
@@ -123,23 +122,42 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     finally { setWhatsappSending(false); setTimeout(() => setMsg(""), 3000) }
   }
 
-  const sendInvoiceWhatsApp = () => {
-    const itemLines = [
-      ...(order.frames?.map((f: any) => `• Frame: ${f.brand} (Qty: ${f.quantity})`) || []),
-      ...(order.lenses?.map((l: any) => `• Lens: ${l.brand}${l.powerDetails ? ` - ${l.powerDetails}` : ""}`) || []),
-      ...(order.drops?.map((d: any) => `• Eye Drop: ${d.name} (Qty: ${d.quantity})`) || []),
-    ].join("\n")
-    const dueText = order.dueAmount > 0 ? `\n💰 Due Amount: ₹${order.dueAmount}` : ""
-    const message =
-      `🏥 *Kasturi Eye Hospitals*\n` +
-      `📋 *Invoice - Order #${order._id.slice(-6).toUpperCase()}*\n` +
-      `📅 Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}\n\n` +
-      `👤 Patient: ${patient?.name}\n` +
-      `👨‍⚕️ Doctor: ${order.doctorName}\n\n` +
-      `*Order Items:*\n${itemLines}\n\n` +
-      `💵 Total: ₹${order.totalAmount}\n` +
-      `✅ Paid: ₹${order.amountPaid || 0}${dueText}`
-    window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
+  const sendInvoiceWhatsApp = async () => {
+    // Generate PDF from the invoice element and download it
+    // Then open WhatsApp so user can attach the downloaded PDF
+    try {
+      const html2pdf = (await import("html2pdf.js")).default
+      const element = document.getElementById("invoice")
+      if (!element) return
+
+      const opt = {
+        margin: 10,
+        filename: `Invoice-${order._id.slice(-6).toUpperCase()}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      }
+
+      // Download the PDF
+      await html2pdf().set(opt).from(element).save()
+
+      // Open WhatsApp after a short delay so PDF downloads first
+      setTimeout(() => {
+        const message =
+          `🏥 *Kasturi Eye Hospitals*\n` +
+          `📋 Invoice for Order #${order._id.slice(-6).toUpperCase()}\n` +
+          `👤 Patient: ${patient?.name}\n` +
+          `💵 Total: ₹${order.totalAmount} | ✅ Paid: ₹${order.amountPaid || 0}${order.dueAmount > 0 ? ` | 💰 Due: ₹${order.dueAmount}` : ""}\n\n` +
+          `Please find the invoice PDF attached.`
+        window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
+      }, 1500)
+
+      setMsg("PDF downloaded! Attach it in WhatsApp.")
+      setTimeout(() => setMsg(""), 5000)
+    } catch (e: any) {
+      setMsg("Failed to generate PDF")
+      setTimeout(() => setMsg(""), 3000)
+    }
   }
 
   const printInvoice = () => window.print()
@@ -183,7 +201,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
               onClick={sendInvoiceWhatsApp}
               className="border border-green-300 text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
             >
-              📲 Invoice to WhatsApp
+              📲 Send PDF Invoice
             </button>
           </div>
         </div>
