@@ -107,36 +107,6 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
         </div>
       )}
 
-      {/* Bar Chart */}
-      {data && data.report.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h2 className="font-semibold text-gray-800 mb-6">Monthly Breakdown</h2>
-          <div className="flex items-end gap-2 overflow-x-auto pb-2" style={{ minHeight: "200px" }}>
-            {data.report.map((r: any) => (
-              <div key={`${r.year}-${r.monthNum}`} className="flex-shrink-0 flex flex-col items-center gap-1" style={{ minWidth: "48px" }}>
-                <div className="w-full flex gap-0.5 items-end" style={{ height: "160px" }}>
-                  <div className="flex-1 bg-blue-400 rounded-t transition-all"
-                    style={{ height: `${(r.patients / maxVal) * 100}%`, minHeight: r.patients > 0 ? "4px" : "0" }}
-                    title={`Patients: ${r.patients}`} />
-                  <div className="flex-1 bg-green-400 rounded-t transition-all"
-                    style={{ height: `${(r.orders / maxVal) * 100}%`, minHeight: r.orders > 0 ? "4px" : "0" }}
-                    title={`Orders: ${r.orders}`} />
-                </div>
-                <span className="text-xs text-gray-500 text-center leading-tight">{r.month}<br />{r.year}</span>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-6 mt-4 justify-center">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <div className="w-3 h-3 bg-blue-400 rounded" /> Patients
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <div className="w-3 h-3 bg-green-400 rounded" /> Orders
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Table */}
       {data && data.report.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
