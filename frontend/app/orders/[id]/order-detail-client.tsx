@@ -85,10 +85,14 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
   const patient = order.patientId as any
 
+  const [thankYouSent, setThankYouSent] = useState(false)
+  const [invoiceSent, setInvoiceSent] = useState(false)
+
   const sendThankYou = () => {
     const message =
       `Order Delivered!\nHi ${patient?.name}, your glasses are delivered.\nThank you for choosing Kasturi Eye Hospitals.\nSee you again soon!`
     window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
+    setThankYouSent(true)
   }
 
   const updateStatus = async (status: string) => {
@@ -103,13 +107,6 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       if (res.success && res.data) {
         setOrder(res.data)
         setMsg("Status updated!")
-        if (status === "Delivered" && patient?.phone) {
-          setTimeout(() => {
-            if (window.confirm(`Send thank you WhatsApp message to ${patient.name}?`)) {
-              sendThankYou()
-            }
-          }, 500)
-        }
       } else setMsg(res.error || "Failed to update")
     } catch (e: any) { setMsg(e.message) }
     finally { setUpdating(false); setTimeout(() => setMsg(""), 3000) }
@@ -168,6 +165,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       `Thank you for choosing Kasturi Eye Hospitals.`
 
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
+    setInvoiceSent(true)
   }
 
   const printInvoice = () => window.print()
@@ -195,9 +193,14 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             {order.status === "Delivered" && patient?.phone && (
               <button
                 onClick={sendThankYou}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                disabled={thankYouSent}
+                className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
+                  thankYouSent
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                }`}
               >
-                <span>💬</span> Send Thank You
+                <span>💬</span> {thankYouSent ? "Thank You Sent" : "Send Thank You"}
               </button>
             )}
               <button
@@ -216,10 +219,14 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             </button>
             <button
               onClick={sendInvoiceWhatsApp}
-              disabled={pdfGenerating}
-              className="border border-green-300 text-green-700 hover:bg-green-50 disabled:opacity-60 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              disabled={pdfGenerating || invoiceSent}
+              className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
+                invoiceSent
+                  ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                  : "border border-green-300 text-green-700 hover:bg-green-50"
+              }`}
             >
-              Send Invoice
+              {invoiceSent ? "Invoice Sent" : "Send Invoice"}
             </button>
           </div>
         </div>
