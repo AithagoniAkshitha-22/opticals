@@ -40,7 +40,7 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 pt-4 pb-24 md:pb-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome to Kasturi Eye Hospitals Management System</p>
+        <p className="text-gray-500 mt-1">Welcome to Kasturi Eye Clinic & Opticals Management System</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">

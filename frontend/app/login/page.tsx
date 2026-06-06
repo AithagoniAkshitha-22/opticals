@@ -39,7 +39,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
           <div className="w-40 h-40 rounded-2xl shadow-lg overflow-hidden mb-2">
             <img
-              src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729759/WhatsApp_Image_2026-06-06_at_12.38.28_PM_uadj9c.jpg"
+              src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780743175/Gemini_Generated_Image_1qeuma1qeuma1qeu_z0h1zs.png"
               alt="Kasturi Eye Clinic & Opticals"
               className="w-full h-full object-cover object-top"
             />

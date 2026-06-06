@@ -8,13 +8,13 @@ import AppShell from "@/components/app-shell"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Kasturi Eye Hospitals – Management System",
+  title: "Kasturi Eye Clinic & Opticals – Management System",
   description: "Admin web application for managing patients, prescriptions, orders, and billing",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Kasturi Eye Hospitals",
+    title: "Kasturi Eye Clinic & Opticals",
   },
   formatDetection: { telephone: false },
 }
@@ -27,10 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780742652/Gemini_Generated_Image_u3xpi6u3xpi6u3xp_xqkeb6.png" />
+        <link rel="apple-touch-icon" href="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780743175/Gemini_Generated_Image_1qeuma1qeuma1qeu_z0h1zs.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Kasturi Eye Hospitals" />
+        <meta name="apple-mobile-web-app-title" content="Kasturi Eye Clinic & Opticals" />
       </head>
       <body className={`${inter.className} min-h-screen bg-gray-50`}>
         <AuthProvider>
