@@ -78,15 +78,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <img src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729096/Gemini_Generated_Image_3utla33utla33utl_1_y9p7cs.png" alt="Kasturi Eye Hospitals" className="w-10 h-10 object-contain rounded-lg" />
+              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                <img src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729096/Gemini_Generated_Image_3utla33utla33utl_1_y9p7cs.png" alt="Kasturi Eye Clinic & Opticals" className="w-12 h-12 object-contain rounded-lg" />
               </div>
               <div className="hidden sm:block">
-                <p className="text-base font-bold text-blue-800 leading-tight">Kasturi Eye Hospitals</p>
-                <p className="text-xs text-gray-500">Management System</p>
+                <p className="text-base font-bold text-blue-800 leading-tight">Kasturi Eye Clinic</p>
+                <p className="text-xs text-gray-500">& Opticals</p>
               </div>
               <div className="sm:hidden">
-                <p className="text-sm font-bold text-blue-800 leading-tight">Kasturi Eye Hospitals</p>
+                <p className="text-sm font-bold text-blue-800 leading-tight">Kasturi Eye Clinic</p>
               </div>
             </Link>
 
