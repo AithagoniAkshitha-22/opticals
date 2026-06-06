@@ -79,7 +79,7 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <img src="/logo.png" alt="Kasturi Eye Hospitals" className="w-10 h-10 object-contain rounded-lg" />
+                <img src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729096/Gemini_Generated_Image_3utla33utla33utl_1_y9p7cs.png" alt="Kasturi Eye Hospitals" className="w-10 h-10 object-contain rounded-lg" />
               </div>
               <div className="hidden sm:block">
                 <p className="text-base font-bold text-blue-800 leading-tight">Kasturi Eye Hospitals</p>
