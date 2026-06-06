@@ -37,11 +37,13 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <img
-            src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729759/WhatsApp_Image_2026-06-06_at_12.38.28_PM_uadj9c.jpg"
-            alt="Kasturi Eye Clinic & Opticals"
-            className="w-48 h-48 object-contain rounded-2xl shadow-lg mb-2"
-          />
+          <div className="w-40 h-40 rounded-2xl shadow-lg overflow-hidden mb-2">
+            <img
+              src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729759/WhatsApp_Image_2026-06-06_at_12.38.28_PM_uadj9c.jpg"
+              alt="Kasturi Eye Clinic & Opticals"
+              className="w-full h-full object-cover object-top"
+            />
+          </div>
           <p className="text-gray-500 text-sm mt-1">Sign in to continue</p>
         </div>
 
