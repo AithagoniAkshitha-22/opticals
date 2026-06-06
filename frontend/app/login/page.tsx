@@ -38,7 +38,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729096/Gemini_Generated_Image_3utla33utla33utl_1_y9p7cs.png"
+            src="https://res.cloudinary.com/dpp7ylg7d/image/upload/v1780729759/WhatsApp_Image_2026-06-06_at_12.38.28_PM_uadj9c.jpg"
             alt="Kasturi Eye Clinic & Opticals"
             className="w-48 h-48 object-contain rounded-2xl shadow-lg mb-2"
           />
