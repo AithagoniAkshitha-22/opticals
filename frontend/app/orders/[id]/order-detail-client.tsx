@@ -85,7 +85,18 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
   const patient = order.patientId as any
 
+  const sendThankYou = () => {
+    const message =
+      `Order Delivered!\nHi ${patient?.name}, your glasses are delivered.\nThank you for choosing Kasturi Eye Hospitals.\nSee you again soon!`
+    window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
+  }
+
   const updateStatus = async (status: string) => {
+    if (status === "Delivered" && order.dueAmount > 0) {
+      setMsg(`Cannot mark as Delivered — due amount of ₹${order.dueAmount} is still pending.`)
+      setTimeout(() => setMsg(""), 5000)
+      return
+    }
     setUpdating(true)
     try {
       const res = await apiClient.updateOrderStatus(order._id, status)
@@ -95,9 +106,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
         if (status === "Delivered" && patient?.phone) {
           setTimeout(() => {
             if (window.confirm(`Send thank you WhatsApp message to ${patient.name}?`)) {
-              const message =
-                `Order Delivered!\nHi ${patient.name}, your glasses are delivered.\nThank you for choosing Kasturi Eye Hospitals.\nSee you again soon!`
-              window.open(`https://wa.me/91${patient.phone}?text=${encodeURIComponent(message)}`, "_blank")
+              sendThankYou()
             }
           }, 500)
         }
@@ -183,7 +192,14 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             <span className={`text-sm font-medium px-3 py-1.5 rounded-full ${STATUS_COLORS[order.status] || "bg-gray-100 text-gray-700"}`}>
               {order.isDelayed && order.status !== "Delivered" ? "⚠️ " : ""}{order.status}
             </span>
-            {order.status === "Ready for Pickup" && (
+            {order.status === "Delivered" && patient?.phone && (
+              <button
+                onClick={sendThankYou}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
+                <span>💬</span> Send Thank You
+              </button>
+            )}
               <button
                 onClick={sendWhatsApp}
                 disabled={whatsappSending}
