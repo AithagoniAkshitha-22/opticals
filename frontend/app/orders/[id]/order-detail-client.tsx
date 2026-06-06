@@ -203,6 +203,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
                 <span>💬</span> {thankYouSent ? "Thank You Sent" : "Send Thank You"}
               </button>
             )}
+            {order.status === "Ready for Pickup" && (
               <button
                 onClick={sendWhatsApp}
                 disabled={whatsappSending}

@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     title: "Kasturi Eye Hospitals",
   },
   formatDetection: { telephone: false },
+}
+
+export const viewport = {
   themeColor: "#2563eb",
 }
 
