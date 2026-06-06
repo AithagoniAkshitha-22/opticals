@@ -194,10 +194,4 @@ GET /api/leads?page=1&limit=10&search=john&status=New&sortBy=createdAt&sortOrder
 3. Configure network access
 4. Get connection string
 
-## 👨‍💻 Author
 
-**Fedesa Yelmachew**
-- GitHub: [@fedhako7](https://github.com/fedhako7)
-- LinkedIn: [linkfedhako7](https://linkedin.com/in/linkfedhako7)
-- Twitter: [@nuyi_fi_siyi](https://twitter.com/nuyi_fi_siyi)
-- LeetCode: [fedhasayel](https://leetcode.com/u/fedhasayel/)
