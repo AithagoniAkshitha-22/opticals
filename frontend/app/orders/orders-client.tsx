@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
@@ -23,22 +23,33 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const fetchOrders = useCallback(async (s = status, q = search, pg = 1) => {
+  const fetchOrders = useCallback(async (s: string, q: string, pg: number) => {
     setLoading(true)
     try {
-      const res = await apiClient.getOrders({ status: s === "all" ? "" : s, search: q, page: pg, limit: 10 })
+      const res = await apiClient.getOrders({ status: s === "all" ? "" : s, search: q.trim(), page: pg, limit: 10 })
       if (res.success && res.data) { setData(res.data); setPage(pg) }
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
-  }, [status, search])
+  }, [])
 
-  // Auto-fetch on mount
   useEffect(() => { fetchOrders("all", "", 1) }, [])
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => fetchOrders(status, value, 1), 400)
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value)
+    fetchOrders(value, search, 1)
+  }
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    if (!confirm("Hide this order? It won't appear in the list but data is preserved.")) return
+    if (!confirm("Delete this order? This cannot be undone.")) return
     setDeletingId(id)
     try {
       const res = await apiClient.deleteOrder(id)
@@ -53,36 +64,56 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
     finally { setDeletingId(null) }
   }
 
+  // Show actual filtered count
+  const displayCount = data.orders?.length ?? 0
+  const totalCount = data.total ?? 0
+  const countLabel = search || status !== "all"
+    ? `${displayCount} order${displayCount !== 1 ? "s" : ""} found`
+    : `${totalCount} order${totalCount !== 1 ? "s" : ""}`
+
   return (
     <div>
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap gap-3 items-center">        <input
-          type="text"
-          placeholder="Search patient name or phone..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && fetchOrders(status, search, 1)}
-          className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4 flex gap-2 items-center flex-wrap">
+        <div className="relative flex-1 min-w-[180px]">
+          {loading ? (
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+          ) : (
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          )}
+          <input
+            type="text"
+            placeholder="Search patient name or phone..."
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {search && (
+            <button onClick={() => handleSearchChange("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          )}
+        </div>
         <select
           value={status}
-          onChange={(e) => { setStatus(e.target.value); fetchOrders(e.target.value, search, 1) }}
+          onChange={(e) => handleStatusChange(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {STATUSES.map((s) => <option key={s} value={s}>{s === "all" ? "All Statuses" : s}</option>)}
         </select>
-        <button
-          onClick={() => fetchOrders(status, search, 1)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
-          Search
-        </button>
       </div>
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
-          <span className="text-sm text-gray-500">{data.total} order{data.total !== 1 ? "s" : ""}</span>
+          <span className="text-sm text-gray-500">{countLabel}</span>
         </div>
 
         {loading ? (
@@ -216,8 +247,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
             <span className="text-sm text-gray-500">Page {page} of {data.totalPages}</span>
             <div className="flex gap-2">
               <button onClick={() => fetchOrders(status, search, page - 1)} disabled={page <= 1} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Prev</button>
-              <button onClick={() => fetchOrders(status, search, page + 1)} disabled={page >= data.totalPages} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Next</button>
-            </div>
+              <button onClick={() => fetchOrders(status, search, page + 1)} disabled={page >= data.totalPages} className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-40 hover:bg-gray-50">Next</button>            </div>
           </div>
         )}
       </div>
