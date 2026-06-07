@@ -90,7 +90,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
   const sendThankYou = () => {
     const message =
-      `Order Delivered!\nHi ${patient?.name}, your glasses are delivered.\nThank you for choosing Kasturi Eye Hospitals.\nSee you again soon!`
+      `Order Delivered!\nHi ${patient?.name}, your glasses are delivered.\nThank you for choosing Kasturi Eye Clinic & Opticals.\nSee you again soon!`
     window.open(`https://wa.me/91${patient?.phone}?text=${encodeURIComponent(message)}`, "_blank")
     setThankYouSent(true)
   }
@@ -153,7 +153,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     const dueLine = order.dueAmount > 0 ? `\nDue Amount: Rs.${order.dueAmount}` : ""
 
     const msg =
-      `*KASTURI EYE HOSPITALS*\n` +
+      `*KASTURI EYE CLINIC & OPTICALS*\n` +
       `Date: ${dateStr}\n` +
       `Patient: ${patient?.name}\n` +
       `Doctor: ${order.doctorName}\n` +
@@ -162,7 +162,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       `${itemLines}\n\n` +
       `*Total Amount:* Rs.${order.totalAmount}\n` +
       `*Amount Paid:* Rs.${order.amountPaid || 0}${dueLine}\n\n` +
-      `Thank you for choosing Kasturi Eye Hospitals.`
+      `Thank you for choosing Kasturi Eye Clinic & Opticals.`
 
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, "_blank")
     setInvoiceSent(true)
@@ -411,7 +411,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       <div id="invoice" className="hidden print:block bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '13px', padding: '32px', maxWidth: '680px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', borderBottom: '2px solid #1d4ed8', paddingBottom: '16px', marginBottom: '20px' }}>
-          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1d4ed8', margin: 0 }}>Kasturi Eye Hospitals</h1>
+          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1d4ed8', margin: 0 }}>Kasturi Eye Clinic & Opticals</h1>
           <p style={{ fontSize: '11px', color: '#6b7280', margin: '4px 0 0' }}>Invoice / Receipt</p>
         </div>
 
@@ -516,7 +516,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
         {/* Footer */}
         <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '12px', textAlign: 'center', color: '#9ca3af', fontSize: '11px' }}>
-          <p style={{ margin: 0 }}>Thank you for choosing Kasturi Eye Hospitals</p>
+          <p style={{ margin: 0 }}>Thank you for choosing Kasturi Eye Clinic & Opticals</p>
         </div>
       </div>
     </div>
