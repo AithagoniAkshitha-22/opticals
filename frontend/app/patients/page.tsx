@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import PatientsClient from "./patients-client"
 
 export default function PatientsPage() {
@@ -17,7 +18,9 @@ export default function PatientsPage() {
           New Patient
         </Link>
       </div>
-      <PatientsClient initialData={{ patients: [], total: 0, page: 1, totalPages: 1 }} />
+      <Suspense fallback={<div className="text-center py-16 text-gray-400">Loading...</div>}>
+        <PatientsClient initialData={{ patients: [], total: 0, page: 1, totalPages: 1 }} />
+      </Suspense>
     </div>
   )
 }

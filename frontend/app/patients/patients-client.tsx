@@ -2,11 +2,15 @@
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { apiClient } from "@/lib/api"
 
 export default function PatientsClient({ initialData }: { initialData: any }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const filterToday = searchParams.get("filter") === "today"
+  const filterDate = searchParams.get("date") || ""
+
   const [data, setData] = useState(initialData)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
@@ -17,11 +21,15 @@ export default function PatientsClient({ initialData }: { initialData: any }) {
   const fetchPatients = useCallback(async (s: string, pg: number) => {
     setLoading(true)
     try {
-      const res = await apiClient.getPatients({ search: s.trim(), page: pg, limit: 10 })
+      const params: any = { search: s.trim(), page: pg, limit: 10 }
+      if (filterToday && filterDate) {
+        params.date = filterDate  // backend will filter by this date
+      }
+      const res = await apiClient.getPatients(params)
       if (res.success && res.data) { setData(res.data); setPage(pg) }
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
-  }, [])
+  }, [filterToday, filterDate])
 
   // Initial load
   useEffect(() => { fetchPatients("", 1) }, [])

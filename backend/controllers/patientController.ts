@@ -35,7 +35,7 @@ export const createPatient = async (req: Request, res: Response): Promise<void> 
 // Get all patients with search/filter/pagination
 export const getPatients = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { page = 1, limit = 10, search = "" } = req.query
+    const { page = 1, limit = 10, search = "", date = "" } = req.query
 
     const pageNum = Math.max(1, Number(page))
     const limitNum = Math.max(1, Math.min(50, Number(limit)))
@@ -48,6 +48,14 @@ export const getPatients = async (req: Request, res: Response): Promise<void> =>
         { address: { $regex: String(search).trim(), $options: "i" } },
         { phone: { $regex: String(search).trim(), $options: "i" } },
       ]
+    }
+    // Filter by specific date (YYYY-MM-DD)
+    if (date) {
+      const start = new Date(String(date))
+      start.setHours(0, 0, 0, 0)
+      const end = new Date(String(date))
+      end.setHours(23, 59, 59, 999)
+      query.createdAt = { $gte: start, $lte: end }
     }
 
     const [patients, total] = await Promise.all([

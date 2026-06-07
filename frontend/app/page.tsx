@@ -18,10 +18,10 @@ export default function DashboardPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const today = new Date().toISOString().split("T")[0]
   const cards = [
-    { label: "Today's Patients", value: stats.todayPatients, color: "blue", href: "/patients?filter=today", icon: "👤" },
+    { label: "Today's Patients", value: stats.todayPatients, color: "blue", href: `/patients?filter=today&date=${today}`, icon: "👤" },
     { label: "Active Orders", value: stats.activeOrders, color: "indigo", href: "/orders?status=active", icon: "📦" },
-    { label: "Processing", value: stats.processingOrders, color: "yellow", href: "/orders?status=Ordered", icon: "⚙️" },
     { label: "Ready for Pickup", value: stats.readyForPickup, color: "green", href: "/orders?status=Ready+for+Pickup", icon: "✅" },
     { label: "Delivered", value: stats.deliveredOrders, color: "gray", href: "/orders?status=Delivered", icon: "🎉" },
   ]
@@ -42,7 +42,7 @@ export default function DashboardPage() {
         <p className="text-gray-500 mt-1">Welcome to Kasturi Eye Clinic & Opticals Management System</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {cards.map((card) => (
           <Link key={card.label} href={card.href}
             className={`border rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow ${colorMap[card.color]}`}>
