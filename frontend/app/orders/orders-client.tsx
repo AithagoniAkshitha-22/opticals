@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
 
@@ -17,29 +17,62 @@ const STATUSES = ["all", "Ordered", "Processing", "Ready for Pickup", "Delivered
 
 export default function OrdersClient({ initialData }: { initialData: any }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlStatus = searchParams.get("status") || "all"
+  // "active" means all non-delivered
+  const resolvedStatus = urlStatus === "active" ? "all" : urlStatus
+
   const [data, setData] = useState(initialData)
-  const [status, setStatus] = useState("all")
+  const [status, setStatus] = useState(resolvedStatus)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const fetchOrders = useCallback(async (s: string, q: string, pg: number) => {
+  const fetchOrders = useCallback(async (s: string, q: string, pg: number, excludeDelivered = false) => {
     setLoading(true)
     try {
-      const res = await apiClient.getOrders({ status: s === "all" ? "" : s, search: q.trim(), page: pg, limit: 10 })
-      if (res.success && res.data) { setData(res.data); setPage(pg) }
+      const params: any = { search: q.trim(), page: pg, limit: 10 }
+      if (excludeDelivered) {
+        // Active = all except Delivered — fetch all and filter client-side isn't ideal
+        // Use empty status but pass a special flag; backend handles it via "active"
+        params.status = ""
+        params.excludeDelivered = "true"
+      } else if (s !== "all") {
+        params.status = s
+      }
+      const res = await apiClient.getOrders(params)
+      if (res.success && res.data) {
+        let result = res.data
+        // Client-side filter for active (exclude Delivered)
+        if (excludeDelivered) {
+          result = {
+            ...result,
+            orders: result.orders.filter((o: any) => o.status !== "Delivered"),
+          }
+          result.total = result.orders.length
+        }
+        setData(result)
+        setPage(pg)
+      }
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { fetchOrders("all", "", 1) }, [])
+  useEffect(() => {
+    if (urlStatus === "active") {
+      fetchOrders("all", "", 1, true)
+    } else {
+      fetchOrders(resolvedStatus, "", 1)
+    }
+  }, [])
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => fetchOrders(status, value, 1), 400)
+    const isActive = urlStatus === "active"
+    debounceRef.current = setTimeout(() => fetchOrders(status, value, 1, isActive), 400)
   }
 
   const handleStatusChange = (value: string) => {

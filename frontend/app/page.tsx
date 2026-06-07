@@ -7,7 +7,7 @@ import { apiClient } from "@/lib/api"
 export default function DashboardPage() {
   const [stats, setStats] = useState({
     todayPatients: 0, activeOrders: 0, processingOrders: 0,
-    readyForPickup: 0, delayedOrders: 0, deliveredOrders: 0,
+    readyForPickup: 0, deliveredOrders: 0,
   })
   const [loading, setLoading] = useState(true)
 
@@ -19,11 +19,10 @@ export default function DashboardPage() {
   }, [])
 
   const cards = [
-    { label: "Today's Patients", value: stats.todayPatients, color: "blue", href: "/patients", icon: "👤" },
-    { label: "Active Orders", value: stats.activeOrders, color: "indigo", href: "/orders", icon: "📦" },
-    { label: "Processing", value: stats.processingOrders, color: "yellow", href: "/orders?status=Processing", icon: "⚙️" },
+    { label: "Today's Patients", value: stats.todayPatients, color: "blue", href: "/patients?filter=today", icon: "👤" },
+    { label: "Active Orders", value: stats.activeOrders, color: "indigo", href: "/orders?status=active", icon: "📦" },
+    { label: "Processing", value: stats.processingOrders, color: "yellow", href: "/orders?status=Ordered", icon: "⚙️" },
     { label: "Ready for Pickup", value: stats.readyForPickup, color: "green", href: "/orders?status=Ready+for+Pickup", icon: "✅" },
-    { label: "Delayed Orders", value: stats.delayedOrders, color: "red", href: "/orders?status=Delayed", icon: "⚠️" },
     { label: "Delivered", value: stats.deliveredOrders, color: "gray", href: "/orders?status=Delivered", icon: "🎉" },
   ]
 
