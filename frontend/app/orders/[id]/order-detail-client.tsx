@@ -82,7 +82,6 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     } catch (e: any) { setMsg(e.message) }
     finally { setPaymentUpdating(false); setEditingPayment(false); setTimeout(() => setMsg(""), 3000) }
   }
-
   const patient = order.patientId as any
 
   const [thankYouSent, setThankYouSent] = useState(false)
@@ -342,43 +341,75 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             <span>₹{order.totalAmount}</span>
           </div>
 
-          {/* Amount Paid — editable */}
+          {/* Amount Paid + Add Payment */}
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">Amount Paid</span>
-            {editingPayment ? (
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col gap-1">
-                  <input
-                    type="number"
-                    value={newAmountPaid}
-                    onChange={(e) => setNewAmountPaid(e.target.value)}
-                    max={order.totalAmount}
-                    className={`w-28 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${Number(newAmountPaid) > order.totalAmount ? "border-red-400 focus:ring-red-400" : "border-gray-300"}`}
-                    autoFocus
-                  />
-                  {Number(newAmountPaid) > order.totalAmount && (
-                    <span className="text-xs text-red-500">Exceeds total ₹{order.totalAmount}</span>
-                  )}
-                </div>
-                <button onClick={savePayment} disabled={paymentUpdating || Number(newAmountPaid) > order.totalAmount}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-3 py-1 rounded-lg text-xs font-medium">
-                  {paymentUpdating ? "..." : "Save"}
+            <div className="flex items-center gap-2">
+              <span className="text-green-600 font-medium">₹{order.amountPaid || 0}</span>
+              {order.status !== "Delivered" && order.dueAmount > 0 && (
+                <button
+                  onClick={() => { setNewAmountPaid(""); setEditingPayment(true) }}
+                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md font-medium"
+                >
+                  + Add Payment
                 </button>
-                <button onClick={() => setEditingPayment(false)}
-                  className="border border-gray-300 text-gray-600 px-3 py-1 rounded-lg text-xs hover:bg-gray-50">
+              )}
+            </div>
+          </div>
+
+          {/* Add Payment inline form */}
+          {editingPayment && order.status !== "Delivered" && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+              <p className="text-xs font-medium text-blue-700">Add payment amount (due: ₹{order.dueAmount})</p>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="number"
+                  value={newAmountPaid}
+                  onChange={(e) => setNewAmountPaid(e.target.value)}
+                  placeholder={`Max ₹${order.dueAmount}`}
+                  max={order.dueAmount}
+                  className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    Number(newAmountPaid) > order.dueAmount ? "border-red-400" : "border-gray-300"
+                  }`}
+                  autoFocus
+                />
+                <button
+                  onClick={async () => {
+                    const adding = Number(newAmountPaid) || 0
+                    if (adding <= 0) return
+                    if (adding > order.dueAmount) {
+                      setMsg(`Cannot add ₹${adding} — only ₹${order.dueAmount} is due`)
+                      setTimeout(() => setMsg(""), 4000)
+                      return
+                    }
+                    setPaymentUpdating(true)
+                    try {
+                      const newTotal = (order.amountPaid || 0) + adding
+                      const res = await apiClient.updateOrderPayment(order._id, newTotal)
+                      if (res.success && res.data) {
+                        setOrder(res.data)
+                        setMsg(res.data.dueAmount === 0 ? "Payment complete! Due cleared." : `₹${adding} added. Due: ₹${res.data.dueAmount}`)
+                      } else setMsg(res.error || "Failed to update")
+                    } catch (e: any) { setMsg(e.message) }
+                    finally { setPaymentUpdating(false); setEditingPayment(false); setTimeout(() => setMsg(""), 4000) }
+                  }}
+                  disabled={paymentUpdating || !newAmountPaid || Number(newAmountPaid) > order.dueAmount}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap"
+                >
+                  {paymentUpdating ? "..." : "Confirm"}
+                </button>
+                <button
+                  onClick={() => setEditingPayment(false)}
+                  className="border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-50"
+                >
                   Cancel
                 </button>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-green-600 font-medium">₹{order.amountPaid || 0}</span>
-                {order.status !== "Delivered" && (
-                  <button onClick={() => { setNewAmountPaid(String(order.amountPaid || 0)); setEditingPayment(true) }}
-                    className="text-xs text-blue-600 hover:underline">Edit</button>
-                )}
-              </div>
-            )}
-          </div>
+              {Number(newAmountPaid) > order.dueAmount && (
+                <p className="text-xs text-red-500">Amount exceeds due of ₹{order.dueAmount}</p>
+              )}
+            </div>
+          )}
 
           {/* Due Amount */}
           <div className="flex justify-between text-sm font-semibold">
