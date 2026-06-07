@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import OrdersClient from "./orders-client"
 
 export default function OrdersPage() {
@@ -17,7 +18,9 @@ export default function OrdersPage() {
           New Order
         </Link>
       </div>
-      <OrdersClient initialData={{ orders: [], total: 0, page: 1, totalPages: 1 }} />
+      <Suspense fallback={<div className="text-center py-16 text-gray-400">Loading...</div>}>
+        <OrdersClient initialData={{ orders: [], total: 0, page: 1, totalPages: 1 }} />
+      </Suspense>
     </div>
   )
 }
