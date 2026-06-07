@@ -184,7 +184,7 @@ export const logWhatsApp = async (req: Request, res: Response): Promise<void> =>
     await order.save()
 
     const patient = order.patientId as any
-    const message = `Hello ${patient.name}, your glasses are ready for pickup at Kasturi Eye Hospitals.`
+    const message = `Hello ${patient.name}, your glasses are ready for pickup at Kasturi Eye Clinic & Opticals.`
     const whatsappUrl = `https://wa.me/91${patient.phone}?text=${encodeURIComponent(message)}`
 
     res.status(200).json({
