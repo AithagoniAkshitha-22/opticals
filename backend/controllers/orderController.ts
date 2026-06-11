@@ -27,12 +27,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return
     }
 
-    // Generate sequential order number (A1, A2...A100, B1, B2...)
-    const count = await Order.countDocuments()
-    const letter = String.fromCharCode(65 + Math.floor(count / 100))
-    const number = (count % 100) + 1
-    const orderNumber = `${letter}${number}`
-
     const order = new Order({
       patientId,
       frames: frames || [],
@@ -46,7 +40,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       dueAmount: Math.max(0, (totalAmount || 0) - (amountPaid || 0)),
       doctorName: doctorName || "Dr. Kasturi",
       status: "Ordered",
-      orderNumber,
       statusHistory: [{ status: "Ordered", changedAt: new Date(), changedBy: req.headers["x-user"] || "staff" }],
     })
 

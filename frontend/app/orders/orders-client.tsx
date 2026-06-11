@@ -172,7 +172,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-xs text-gray-400">{o.orderNumber || `#${o._id.slice(-6).toUpperCase()}`}</span>
+                        <span className="font-mono text-xs text-gray-400">#{o._id.slice(-6).toUpperCase()}</span>
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${STATUS_COLORS[o.status] || "bg-gray-100 text-gray-700"}`}>
                           {o.isDelayed && o.status !== "Delivered" ? "⚠️ " : ""}{o.status}
                         </span>
@@ -229,7 +229,7 @@ export default function OrdersClient({ initialData }: { initialData: any }) {
                         onClick={() => router.push(`/orders/${o._id}`)}
                         className="hover:bg-blue-50 cursor-pointer transition-colors"
                       >
-                        <td className="px-6 py-4 font-mono text-xs text-gray-600">{o.orderNumber || `#${o._id.slice(-6).toUpperCase()}`}</td>
+                        <td className="px-6 py-4 font-mono text-xs text-gray-600">#{o._id.slice(-6).toUpperCase()}</td>
                         <td className="px-6 py-4">
                           <p className="font-medium text-gray-900">{patient?.name || "—"}</p>
                           <p className="text-xs text-gray-400">{patient?.phone}</p>

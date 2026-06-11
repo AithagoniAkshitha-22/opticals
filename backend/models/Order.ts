@@ -39,7 +39,6 @@ export interface IOrder extends Document {
   totalAmount: number
   amountPaid: number
   dueAmount: number
-  orderNumber: string
   status: OrderStatus
   statusHistory: { status: OrderStatus; changedAt: Date; changedBy?: string }[]
   whatsappLogs: IWhatsAppLog[]
@@ -87,7 +86,7 @@ const OrderSchema = new Schema<IOrder>(
     totalAmount: { type: Number, required: true, min: 0, default: 0 },
     amountPaid: { type: Number, min: 0, default: 0 },
     dueAmount: { type: Number, min: 0, default: 0 },
-    orderNumber: { type: String, index: { sparse: true } },
+    orderNumber: { type: String },
     status: {
       type: String,
       enum: ["Ordered", "Processing", "Ready for Pickup", "Delivered", "Delayed"],
