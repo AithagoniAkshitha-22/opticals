@@ -86,7 +86,6 @@ const OrderSchema = new Schema<IOrder>(
     totalAmount: { type: Number, required: true, min: 0, default: 0 },
     amountPaid: { type: Number, min: 0, default: 0 },
     dueAmount: { type: Number, min: 0, default: 0 },
-    orderNumber: { type: String },
     status: {
       type: String,
       enum: ["Ordered", "Processing", "Ready for Pickup", "Delivered", "Delayed"],
