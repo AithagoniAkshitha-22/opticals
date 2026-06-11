@@ -18,6 +18,11 @@ export interface IDropItem {
   quantity: number
 }
 
+export interface ITabletItem {
+  name: string
+  quantity: number
+}
+
 export interface IWhatsAppLog {
   sentAt: Date
   sentBy: string
@@ -28,11 +33,13 @@ export interface IOrder extends Document {
   frames: IFrameItem[]
   lenses: ILensItem[]
   drops: IDropItem[]
+  tablets: ITabletItem[]
   prescriptionFileUrl?: string
   prescriptionFileName?: string
   totalAmount: number
   amountPaid: number
   dueAmount: number
+  orderNumber: string
   status: OrderStatus
   statusHistory: { status: OrderStatus; changedAt: Date; changedBy?: string }[]
   whatsappLogs: IWhatsAppLog[]
@@ -68,11 +75,19 @@ const OrderSchema = new Schema<IOrder>(
         _id: false,
       },
     ],
+    tablets: [
+      {
+        name: { type: String, required: true },
+        quantity: { type: Number, required: true, min: 1 },
+        _id: false,
+      },
+    ],
     prescriptionFileUrl: { type: String },
     prescriptionFileName: { type: String },
     totalAmount: { type: Number, required: true, min: 0, default: 0 },
     amountPaid: { type: Number, min: 0, default: 0 },
     dueAmount: { type: Number, min: 0, default: 0 },
+    orderNumber: { type: String, unique: true, sparse: true },
     status: {
       type: String,
       enum: ["Ordered", "Processing", "Ready for Pickup", "Delivered", "Delayed"],

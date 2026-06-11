@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<string, string> = {
   Delayed: "bg-red-100 text-red-700",
 }
 
-const STATUSES = ["all", "Ordered", "Processing", "Ready for Pickup", "Delivered", "Delayed"]
+const STATUSES = ["all", "Ordered", "Ready for Pickup", "Delivered"]
 
 export default function OrdersClient({ initialData }: { initialData: any }) {
   const router = useRouter()

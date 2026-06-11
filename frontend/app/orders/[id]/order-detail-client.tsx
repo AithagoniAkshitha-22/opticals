@@ -147,6 +147,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       ...(order.frames?.map((f: any) => `Frame: ${f.brand} x${f.quantity}`) || []),
       ...(order.lenses?.map((l: any) => `Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
       ...(order.drops?.map((d: any) => `Eye Drop: ${d.name} x${d.quantity}`) || []),
+      ...(order.tablets?.map((t: any) => `Tablet: ${t.name} x${t.quantity}`) || []),
     ].join("\n")
 
     const dueLine = order.dueAmount > 0 ? `\nDue Amount: Rs.${order.dueAmount}` : ""
@@ -182,7 +183,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Order #{order._id.slice(-6).toUpperCase()}</h1>
+            <h1 className="text-xl font-bold text-gray-900">Order #{order.orderNumber || order._id.slice(-6).toUpperCase()}</h1>
             <p className="text-gray-500 text-sm mt-1">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -332,6 +333,17 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
                 <div key={i} className="flex justify-between py-2 border-b border-gray-100 text-sm">
                   <span className="text-gray-800">{d.name}</span>
                   <span className="text-gray-500">Qty: {d.quantity}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {order.tablets?.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Tablets</p>
+              {order.tablets.map((t: any, i: number) => (
+                <div key={i} className="flex justify-between py-2 border-b border-gray-100 text-sm">
+                  <span className="text-gray-800">{t.name}</span>
+                  <span className="text-gray-500">Qty: {t.quantity}</span>
                 </div>
               ))}
             </div>
@@ -527,6 +539,13 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
                 <td style={{ padding: '7px 10px' }}>Eye Drop</td>
                 <td style={{ padding: '7px 10px' }}>{d.name}</td>
                 <td style={{ padding: '7px 10px', textAlign: 'right' }}>{d.quantity}</td>
+              </tr>
+            ))}
+            {order.tablets?.map((t: any, i: number) => (
+              <tr key={`t${i}`} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <td style={{ padding: '7px 10px' }}>Tablet</td>
+                <td style={{ padding: '7px 10px' }}>{t.name}</td>
+                <td style={{ padding: '7px 10px', textAlign: 'right' }}>{t.quantity}</td>
               </tr>
             ))}
           </tbody>

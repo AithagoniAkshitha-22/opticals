@@ -6,7 +6,7 @@ import AuditLog from "../models/AuditLog"
 // Create order
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { patientId, frames, lenses, drops, prescriptionFileUrl, prescriptionFileName, totalAmount, amountPaid, doctorName } =
+    const { patientId, frames, lenses, drops, tablets, prescriptionFileUrl, prescriptionFileName, totalAmount, amountPaid, doctorName } =
       req.body
 
     if (!patientId) {
@@ -21,17 +21,23 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     }
 
     const hasItems =
-      (frames && frames.length > 0) || (lenses && lenses.length > 0) || (drops && drops.length > 0)
+      (frames && frames.length > 0) || (lenses && lenses.length > 0) || (drops && drops.length > 0) || (tablets && tablets.length > 0)
     if (!hasItems) {
-      res.status(400).json({ success: false, error: "Order must contain at least one item (frame, lens, or drop)" })
+      res.status(400).json({ success: false, error: "Order must contain at least one item (frame, lens, drop, or tablet)" })
       return
     }
+
+    const count = await Order.countDocuments()
+    const letter = String.fromCharCode(65 + Math.floor(count / 100))
+    const number = (count % 100) + 1
+    const orderNumber = `${letter}${number}`
 
     const order = new Order({
       patientId,
       frames: frames || [],
       lenses: lenses || [],
       drops: drops || [],
+      tablets: tablets || [],
       prescriptionFileUrl,
       prescriptionFileName,
       totalAmount: totalAmount || 0,
@@ -39,6 +45,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       dueAmount: Math.max(0, (totalAmount || 0) - (amountPaid || 0)),
       doctorName: doctorName || "Dr. Kasturi",
       status: "Ordered",
+      orderNumber,
       statusHistory: [{ status: "Ordered", changedAt: new Date(), changedBy: req.headers["x-user"] || "staff" }],
     })
 

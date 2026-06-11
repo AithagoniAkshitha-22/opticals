@@ -34,6 +34,7 @@ export default function NewPatientPage() {
   const [frames, setFrames] = useState<FrameItem[]>([])
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
+  const [tablets, setTablets] = useState<{ name: string; quantity: number }[]>([])
   const [totalAmount, setTotalAmount] = useState("")
   const [amountPaid, setAmountPaid] = useState("")
   const dueAmount = Math.max(0, (Number(totalAmount) || 0) - (Number(amountPaid) || 0))
@@ -107,7 +108,7 @@ export default function NewPatientPage() {
       }
 
       // 3. Save order if any items added
-      const hasOrder = frames.length > 0 || lenses.length > 0 || drops.length > 0
+      const hasOrder = frames.length > 0 || lenses.length > 0 || drops.length > 0 || tablets.length > 0
       if (hasOrder) {
         // Upload frame images to Cloudinary
         const framesPayload = await Promise.all(frames.map(async ({ imagePreview, imageBase64, ...rest }) => {
@@ -121,7 +122,7 @@ export default function NewPatientPage() {
           return { ...rest, brand: rest.brand || "Unknown", imageUrl }
         }))
         await apiClient.createOrder({
-          patientId, frames: framesPayload, lenses, drops,
+          patientId, frames: framesPayload, lenses, drops, tablets,
           totalAmount: Number(totalAmount) || 0,
           amountPaid: Number(amountPaid) || 0,
           doctorName,
@@ -331,8 +332,33 @@ export default function NewPatientPage() {
             )}
           </div>
 
+          {/* Tablets */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Tablets</span>
+              <button type="button" onClick={() => setTablets([...tablets, { name: "", quantity: 1 }])}
+                className="text-blue-600 text-sm hover:underline">+ Add Tablet</button>
+            </div>
+            {tablets.length === 0 ? <p className="text-gray-400 text-xs">No tablets added</p> : (
+              <div className="space-y-2">
+                {tablets.map((t, i) => (
+                  <div key={i} className="flex gap-2 items-center">
+                    <input type="text" value={t.name} onChange={(e) => { const n = [...tablets]; n[i].name = e.target.value; setTablets(n) }}
+                      placeholder="Tablet name" className="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <div className="flex items-center gap-1">
+                      <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity = Math.max(1, n[i].quantity - 1); setTablets(n) }} className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center text-gray-600 hover:bg-gray-50">−</button>
+                      <span className="w-6 text-center text-sm">{t.quantity}</span>
+                      <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity += 1; setTablets(n) }} className="w-7 h-7 border border-gray-300 rounded flex items-center justify-center text-gray-600 hover:bg-gray-50">+</button>
+                    </div>
+                    <button type="button" onClick={() => setTablets(tablets.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600">✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Pricing */}
-          {(frames.length > 0 || lenses.length > 0 || drops.length > 0) && (
+          {(frames.length > 0 || lenses.length > 0 || drops.length > 0 || tablets.length > 0) && (
             <div className="space-y-3 pt-2 border-t border-gray-100">
               <div className="grid grid-cols-2 gap-3">
                 <div>

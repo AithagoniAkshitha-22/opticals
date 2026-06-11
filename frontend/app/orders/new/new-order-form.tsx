@@ -29,6 +29,7 @@ export default function NewOrderForm() {
   const [frames, setFrames] = useState<FrameItem[]>([])
   const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
+  const [tablets, setTablets] = useState<{ name: string; quantity: number }[]>([])
   const [totalAmount, setTotalAmount] = useState("")
   const [amountPaid, setAmountPaid] = useState("")
   const dueAmount = Math.max(0, (Number(totalAmount) || 0) - (Number(amountPaid) || 0))
@@ -53,6 +54,7 @@ export default function NewOrderForm() {
   const addFrame = () => setFrames([...frames, { brand: frameBrands[0]?.name || "", quantity: 1 }])
   const addLens = () => setLenses([...lenses, { brand: lensBrands[0]?.name || "", powerDetails: "" }])
   const addDrop = () => setDrops([...drops, { name: dropBrands[0]?.name || "", quantity: 1 }])
+  const addTablet = () => setTablets([...tablets, { name: "", quantity: 1 }])
 
   const handleFrameImage = (index: number, file: File | null) => {
     if (!file) {
@@ -76,8 +78,8 @@ export default function NewOrderForm() {
     e.preventDefault()
     setError("")
     if (!patientId) { setError("Please select a patient"); return }
-    if (frames.length === 0 && lenses.length === 0 && drops.length === 0) {
-      setError("Add at least one item (frame, lens, or drop)"); return
+    if (frames.length === 0 && lenses.length === 0 && drops.length === 0 && tablets.length === 0) {
+      setError("Add at least one item (frame, lens, drop, or tablet)"); return
     }
     setLoading(true)
     try {
@@ -96,7 +98,7 @@ export default function NewOrderForm() {
           return { ...rest, brand: rest.brand || "Unknown", imageUrl }
         })
       )
-      const res = await apiClient.createOrder({ patientId, frames: framesPayload, lenses, drops, totalAmount: Number(totalAmount) || 0, amountPaid: Number(amountPaid) || 0, doctorName })
+      const res = await apiClient.createOrder({ patientId, frames: framesPayload, lenses, drops, tablets, totalAmount: Number(totalAmount) || 0, amountPaid: Number(amountPaid) || 0, doctorName })
       if (res.success && res.data) router.push(`/orders/${res.data._id}`)
       else setError(res.error || "Failed to create order")
     } catch (e: any) { setError(e.message) }
@@ -220,6 +222,31 @@ export default function NewOrderForm() {
                     <button type="button" onClick={() => { const n = [...drops]; n[i].quantity += 1; setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">+</button>
                   </div>
                   <button type="button" onClick={() => setDrops(drops.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Tablets */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-gray-800">Tablets</h2>
+            <button type="button" onClick={addTablet} className="text-blue-600 text-sm hover:underline font-medium">+ Add Tablet</button>
+          </div>
+          {tablets.length === 0 ? <p className="text-gray-400 text-sm">No tablets added</p> : (
+            <div className="space-y-3">
+              {tablets.map((t, i) => (
+                <div key={i} className="flex gap-3 items-center">
+                  <input type="text" value={t.name} onChange={(e) => { const n = [...tablets]; n[i].name = e.target.value; setTablets(n) }}
+                    placeholder="Tablet name"
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity = Math.max(1, n[i].quantity - 1); setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">−</button>
+                    <span className="w-8 text-center text-sm font-medium">{t.quantity}</span>
+                    <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity += 1; setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">+</button>
+                  </div>
+                  <button type="button" onClick={() => setTablets(tablets.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg">✕</button>
                 </div>
               ))}
             </div>
