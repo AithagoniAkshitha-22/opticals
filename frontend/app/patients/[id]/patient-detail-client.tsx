@@ -52,8 +52,8 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
   const [showPrescForm, setShowPrescForm] = useState(false)
   const [prescType, setPrescType] = useState<"manual" | "upload">("manual")
   const [prescData, setPrescData] = useState({
-    rightEye: { sph: "", cyl: "", axis: "", visionType: "Far" },
-    leftEye: { sph: "", cyl: "", axis: "", visionType: "Far" },
+    rightEye: { dv: { sph: "", cyl: "", axis: "", va: "" }, nv: { sph: "", cyl: "", axis: "", va: "" } },
+    leftEye:  { dv: { sph: "", cyl: "", axis: "", va: "" }, nv: { sph: "", cyl: "", axis: "", va: "" } },
     fileUrl: "",
     fileName: "",
   })
@@ -68,19 +68,16 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
     setPrescError("")
     setSaving(true)
     try {
+      const num = (v: string) => (v ? Number(v) : null)
       const payload: any = { patientId: patient._id, type: prescType }
       if (prescType === "manual") {
         payload.rightEye = {
-          sph: prescData.rightEye.sph ? Number(prescData.rightEye.sph) : null,
-          cyl: prescData.rightEye.cyl ? Number(prescData.rightEye.cyl) : null,
-          axis: prescData.rightEye.axis ? Number(prescData.rightEye.axis) : null,
-          visionType: prescData.rightEye.visionType,
+          dv: { sph: num(prescData.rightEye.dv.sph), cyl: num(prescData.rightEye.dv.cyl), axis: num(prescData.rightEye.dv.axis), va: prescData.rightEye.dv.va },
+          nv: { sph: num(prescData.rightEye.nv.sph), cyl: num(prescData.rightEye.nv.cyl), axis: num(prescData.rightEye.nv.axis), va: prescData.rightEye.nv.va },
         }
         payload.leftEye = {
-          sph: prescData.leftEye.sph ? Number(prescData.leftEye.sph) : null,
-          cyl: prescData.leftEye.cyl ? Number(prescData.leftEye.cyl) : null,
-          axis: prescData.leftEye.axis ? Number(prescData.leftEye.axis) : null,
-          visionType: prescData.leftEye.visionType,
+          dv: { sph: num(prescData.leftEye.dv.sph), cyl: num(prescData.leftEye.dv.cyl), axis: num(prescData.leftEye.dv.axis), va: prescData.leftEye.dv.va },
+          nv: { sph: num(prescData.leftEye.nv.sph), cyl: num(prescData.leftEye.nv.cyl), axis: num(prescData.leftEye.nv.axis), va: prescData.leftEye.nv.va },
         }
       } else {
         if (!prescData.fileUrl) { setPrescError("File URL is required"); setSaving(false); return }
@@ -200,37 +197,46 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
               </div>
 
               {prescType === "manual" ? (
-                <div className="space-y-4">
-                  {(["rightEye", "leftEye"] as const).map((eye) => (
-                    <div key={eye} className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-700 mb-3">{eye === "rightEye" ? "Right Eye (OD)" : "Left Eye (OS)"}</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {["sph", "cyl", "axis"].map((field) => (
-                          <div key={field}>
-                            <label className="text-xs text-gray-500 uppercase">{field}</label>
-                            <input
-                              type="number"
-                              step="0.25"
-                              value={(prescData[eye] as any)[field]}
-                              onChange={(e) => setPrescData({ ...prescData, [eye]: { ...prescData[eye], [field]: e.target.value } })}
-                              className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                          </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="w-12"></th>
+                        <th colSpan={4} className="text-center py-2 text-blue-700 font-bold border-b-2 border-blue-200 bg-blue-50">R</th>
+                        <th colSpan={4} className="text-center py-2 text-green-700 font-bold border-b-2 border-green-200 bg-green-50">L</th>
+                      </tr>
+                      <tr className="bg-gray-50 text-xs text-gray-500 uppercase">
+                        <th className="py-2 px-1"></th>
+                        {["SPH","CYL","AXIS","VA","SPH","CYL","AXIS","VA"].map((h,i) => (
+                          <th key={i} className={`py-2 px-1 font-medium text-center ${i === 3 ? "border-r-2 border-gray-300" : ""}`}>{h}</th>
                         ))}
-                        <div>
-                          <label className="text-xs text-gray-500 uppercase">Vision</label>
-                          <select
-                            value={(prescData[eye] as any).visionType}
-                            onChange={(e) => setPrescData({ ...prescData, [eye]: { ...prescData[eye], visionType: e.target.value } })}
-                            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          >
-                            <option value="Far">Far</option>
-                            <option value="Near">Near</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(["dv","nv"] as const).map((row) => (
+                        <tr key={row} className="border-t border-gray-100">
+                          <td className="py-2 px-2 font-bold text-gray-700 text-xs whitespace-nowrap">{row === "dv" ? "D.V." : "N.V."}</td>
+                          {(["rightEye","leftEye"] as const).map((eye, eyeIdx) => (
+                            (["sph","cyl","axis","va"] as const).map((field, fieldIdx) => (
+                              <td key={`${eye}-${field}`} className={`py-1 px-1 ${eyeIdx === 0 && fieldIdx === 3 ? "border-r-2 border-gray-300" : ""}`}>
+                                <input
+                                  type={field === "va" ? "text" : "number"}
+                                  step={field === "axis" ? "1" : "0.25"}
+                                  placeholder="-"
+                                  value={(prescData[eye][row] as any)[field]}
+                                  onChange={(e) => setPrescData({
+                                    ...prescData,
+                                    [eye]: { ...prescData[eye], [row]: { ...prescData[eye][row], [field]: e.target.value } }
+                                  })}
+                                  className="w-full text-center bg-transparent border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none text-sm py-1 min-w-[40px]"
+                                />
+                              </td>
+                            ))
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -268,19 +274,38 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                     <span className="text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>
                   </div>
                   {p.type === "manual" ? (
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      {p.rightEye && (
-                        <div>
-                          <p className="font-medium text-gray-700 mb-1">Right Eye (OD)</p>
-                          <p className="text-gray-600">SPH: {p.rightEye.sph ?? "—"} | CYL: {p.rightEye.cyl ?? "—"} | Axis: {p.rightEye.axis ?? "—"} | {p.rightEye.visionType}</p>
-                        </div>
-                      )}
-                      {p.leftEye && (
-                        <div>
-                          <p className="font-medium text-gray-700 mb-1">Left Eye (OS)</p>
-                          <p className="text-gray-600">SPH: {p.leftEye.sph ?? "—"} | CYL: {p.leftEye.cyl ?? "—"} | Axis: {p.leftEye.axis ?? "—"} | {p.leftEye.visionType}</p>
-                        </div>
-                      )}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs border-collapse">
+                        <thead>
+                          <tr>
+                            <th className="w-12"></th>
+                            <th colSpan={4} className="text-center py-1.5 text-blue-700 font-bold border-b-2 border-blue-200 bg-blue-50">R</th>
+                            <th colSpan={4} className="text-center py-1.5 text-green-700 font-bold border-b-2 border-green-200 bg-green-50">L</th>
+                          </tr>
+                          <tr className="bg-gray-50 text-xs text-gray-400 uppercase">
+                            <th className="py-1.5 px-1"></th>
+                            {["SPH","CYL","AXIS","VA","SPH","CYL","AXIS","VA"].map((h,i) => (
+                              <th key={i} className={`py-1.5 px-2 font-medium text-center ${i === 3 ? "border-r-2 border-gray-200" : ""}`}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {["dv","nv"].map(row => (
+                            <tr key={row} className="border-t border-gray-100">
+                              <td className="py-1 px-2 font-bold text-gray-600 whitespace-nowrap">{row === "dv" ? "D.V." : "N.V."}</td>
+                              {(["rightEye","leftEye"] as const).map((eye, eyeIdx) => (
+                                (["sph","cyl","axis","va"] as const).map((field, fieldIdx) => (
+                                  <td key={`${eye}-${field}`} className={`py-1 px-2 text-center text-gray-700 ${eyeIdx === 0 && fieldIdx === 3 ? "border-r-2 border-gray-200" : ""}`}>
+                                    {p[eye]?.[row]?.[field] != null && p[eye]?.[row]?.[field] !== ""
+                                      ? p[eye][row][field]
+                                      : (field !== "va" && p[eye]?.[field] != null ? p[eye][field] : "—")}
+                                  </td>
+                                ))
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   ) : p.fileUrl ? (
                     <div>

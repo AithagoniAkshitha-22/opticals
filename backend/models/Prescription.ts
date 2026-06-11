@@ -1,29 +1,56 @@
 import mongoose, { Schema, Document } from "mongoose"
 
-export interface IEyeData {
-  sph: number | null
-  cyl: number | null
-  axis: number | null
-  visionType: "Far" | "Near"
+export interface IEyeVision {
+  sph?: number | null
+  cyl?: number | null
+  axis?: number | null
+  va?: string
+}
+
+export interface IEyeDataNew {
+  dv?: IEyeVision
+  nv?: IEyeVision
+}
+
+// Legacy shape (kept for backward compat)
+export interface IEyeDataLegacy {
+  sph?: number | null
+  cyl?: number | null
+  axis?: number | null
+  visionType?: "Far" | "Near"
 }
 
 export interface IPrescription extends Document {
   patientId: mongoose.Types.ObjectId
   type: "manual" | "upload"
-  rightEye?: IEyeData
-  leftEye?: IEyeData
+  rightEye?: IEyeDataNew & IEyeDataLegacy
+  leftEye?: IEyeDataNew & IEyeDataLegacy
   fileUrl?: string
   fileName?: string
   createdAt: Date
   updatedAt: Date
 }
 
-const EyeDataSchema = new Schema<IEyeData>(
+const EyeVisionSchema = new Schema<IEyeVision>(
   {
     sph: { type: Number, default: null },
     cyl: { type: Number, default: null },
     axis: { type: Number, min: 0, max: 180, default: null },
-    visionType: { type: String, enum: ["Far", "Near"], required: true },
+    va: { type: String, default: "" },
+  },
+  { _id: false }
+)
+
+const EyeDataSchema = new Schema(
+  {
+    // New dv/nv structure
+    dv: { type: EyeVisionSchema },
+    nv: { type: EyeVisionSchema },
+    // Legacy fields kept for backward compatibility
+    sph: { type: Number, default: null },
+    cyl: { type: Number, default: null },
+    axis: { type: Number, min: 0, max: 180, default: null },
+    visionType: { type: String, enum: ["Far", "Near"] },
   },
   { _id: false }
 )

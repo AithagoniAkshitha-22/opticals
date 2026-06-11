@@ -133,14 +133,20 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
     let prescLines = ""
     if (prescription && (prescription.rightEye || prescription.leftEye)) {
       prescLines = "\n*Prescription*"
-      if (prescription.rightEye) {
-        const re = prescription.rightEye
-        prescLines += `\nOD (Right): SPH ${re.sph ?? "-"} | CYL ${re.cyl ?? "-"} | Axis ${re.axis ?? "-"}`
+      const formatEye = (eye: any, label: string) => {
+        if (!eye) return ""
+        // New dv/nv format
+        if (eye.dv || eye.nv) {
+          let lines = `\n${label}:`
+          if (eye.dv) lines += `\n  D.V. SPH ${eye.dv.sph ?? "-"} CYL ${eye.dv.cyl ?? "-"} Axis ${eye.dv.axis ?? "-"}${eye.dv.va ? ` VA ${eye.dv.va}` : ""}`
+          if (eye.nv) lines += `\n  N.V. SPH ${eye.nv.sph ?? "-"} CYL ${eye.nv.cyl ?? "-"} Axis ${eye.nv.axis ?? "-"}${eye.nv.va ? ` VA ${eye.nv.va}` : ""}`
+          return lines
+        }
+        // Legacy format
+        return `\n${label}: SPH ${eye.sph ?? "-"} | CYL ${eye.cyl ?? "-"} | Axis ${eye.axis ?? "-"}`
       }
-      if (prescription.leftEye) {
-        const le = prescription.leftEye
-        prescLines += `\nOS (Left): SPH ${le.sph ?? "-"} | CYL ${le.cyl ?? "-"} | Axis ${le.axis ?? "-"}`
-      }
+      prescLines += formatEye(prescription.rightEye, "OD (Right)")
+      prescLines += formatEye(prescription.leftEye, "OS (Left)")
     }
 
     const itemLines = [
@@ -478,33 +484,37 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             <h3 style={{ fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid #e5e7eb', paddingBottom: '6px', marginBottom: '10px', color: '#374151' }}>Prescription</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
               <thead>
-                <tr style={{ backgroundColor: '#eff6ff' }}>
-                  <th style={{ padding: '6px 10px', textAlign: 'left' }}>Eye</th>
-                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>SPH</th>
-                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>CYL</th>
-                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>Axis</th>
-                  <th style={{ padding: '6px 10px', textAlign: 'center' }}>Vision</th>
+                <tr>
+                  <th style={{ padding: '4px 8px' }}></th>
+                  <th colSpan={4} style={{ padding: '6px 10px', textAlign: 'center', backgroundColor: '#eff6ff', color: '#1d4ed8', fontWeight: 'bold', borderBottom: '2px solid #bfdbfe' }}>R (Right)</th>
+                  <th colSpan={4} style={{ padding: '6px 10px', textAlign: 'center', backgroundColor: '#f0fdf4', color: '#15803d', fontWeight: 'bold', borderBottom: '2px solid #bbf7d0' }}>L (Left)</th>
+                </tr>
+                <tr style={{ backgroundColor: '#f9fafb', color: '#6b7280', fontSize: '11px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '4px 8px' }}></th>
+                  {['SPH','CYL','AXIS','VA','SPH','CYL','AXIS','VA'].map((h, i) => (
+                    <th key={i} style={{ padding: '4px 8px', textAlign: 'center', borderRight: i === 3 ? '2px solid #d1d5db' : undefined }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {prescription.rightEye && (
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '6px 10px', fontWeight: 'bold' }}>Right (OD)</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.sph ?? '—'}</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.cyl ?? '—'}</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.axis ?? '—'}</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.rightEye.visionType || '—'}</td>
+                {['dv','nv'].map((row) => (
+                  <tr key={row} style={{ borderTop: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '5px 8px', fontWeight: 'bold', color: '#374151', whiteSpace: 'nowrap' }}>{row === 'dv' ? 'D.V.' : 'N.V.'}</td>
+                    {(['rightEye','leftEye'] as const).map((eye, eyeIdx) =>
+                      (['sph','cyl','axis','va'] as const).map((field, fieldIdx) => {
+                        const eyeData = prescription[eye]
+                        const val = eyeData?.[row]?.[field] != null && eyeData[row][field] !== ""
+                          ? eyeData[row][field]
+                          : (field !== 'va' && eyeData?.[field] != null ? eyeData[field] : '—')
+                        return (
+                          <td key={`${eye}-${field}`} style={{ padding: '5px 8px', textAlign: 'center', borderRight: eyeIdx === 0 && fieldIdx === 3 ? '2px solid #d1d5db' : undefined }}>
+                            {val}
+                          </td>
+                        )
+                      })
+                    )}
                   </tr>
-                )}
-                {prescription.leftEye && (
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '6px 10px', fontWeight: 'bold' }}>Left (OS)</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.sph ?? '—'}</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.cyl ?? '—'}</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.axis ?? '—'}</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'center' }}>{prescription.leftEye.visionType || '—'}</td>
-                  </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>

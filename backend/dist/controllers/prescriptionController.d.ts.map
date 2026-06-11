@@ -1,0 +1,1 @@
+{"version":3,"file":"prescriptionController.d.ts","sourceRoot":"","sources":["../../controllers/prescriptionController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAA;AAMhD,eAAO,MAAM,kBAAkB,GAAU,KAAK,OAAO,EAAE,KAAK,QAAQ,KAAG,OAAO,CAAC,IAAI,CAgElF,CAAA;AAGD,eAAO,MAAM,uBAAuB,GAAU,KAAK,OAAO,EAAE,KAAK,QAAQ,KAAG,OAAO,CAAC,IAAI,CASvF,CAAA"}
