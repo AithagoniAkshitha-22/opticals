@@ -87,6 +87,12 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
       const res = await apiClient.createPrescription(payload)
       if (res.success) {
         setPrescList([res.data, ...prescList])
+        // Reset form to empty
+        setPrescData({
+          rightEye: { dv: { sph: "", cyl: "", axis: "", va: "" }, nv: { sph: "", cyl: "", axis: "", va: "" } },
+          leftEye:  { dv: { sph: "", cyl: "", axis: "", va: "" }, nv: { sph: "", cyl: "", axis: "", va: "" } },
+          fileUrl: "", fileName: "",
+        })
         setShowPrescForm(false)
       } else {
         setPrescError(res.error || "Failed to save prescription")
@@ -169,25 +175,18 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-semibold text-gray-800">Prescriptions</h2>
-            <button
-              onClick={() => setShowPrescForm(!showPrescForm)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              + Add Prescription
-            </button>
           </div>
 
-          {showPrescForm && (
-            <div className="bg-white rounded-xl border border-blue-200 shadow-sm p-6 mb-6">
-              <h3 className="font-semibold text-gray-800 mb-4">New Prescription</h3>
-              {prescError && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 text-sm mb-4">{prescError}</div>}
-
-              <div className="flex gap-3 mb-5">
+          {/* Always-visible manual entry table */}
+          <div className="bg-white rounded-xl border border-blue-200 shadow-sm p-5 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-800 text-sm">New Prescription</h3>
+              <div className="flex gap-2">
                 {(["manual", "upload"] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => setPrescType(t)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                       prescType === t ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600 hover:bg-gray-50"
                     }`}
                   >
@@ -195,8 +194,12 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                   </button>
                 ))}
               </div>
+            </div>
 
-              {prescType === "manual" ? (
+            {prescError && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 text-sm mb-4">{prescError}</div>}
+
+            {prescType === "manual" ? (
+              <>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
@@ -243,25 +246,31 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                     </tbody>
                   </table>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <PrescriptionFileUpload
-                    fileUrl={prescData.fileUrl}
-                    fileName={prescData.fileName}
-                    onUpload={(url, name) => setPrescData({ ...prescData, fileUrl: url, fileName: name })}
-                    onClear={() => setPrescData({ ...prescData, fileUrl: "", fileName: "" })}
-                  />
-                </div>
-              )}
-
-              <div className="flex gap-3 mt-5">
-                <button onClick={savePrescription} disabled={saving} className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
-                  {saving ? "Saving..." : "Save Prescription"}
+                <button
+                  onClick={savePrescription}
+                  disabled={saving}
+                  className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  {saving ? "Saving..." : "+ Add Prescription"}
                 </button>
-                <button onClick={() => setShowPrescForm(false)} className="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors">Cancel</button>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <PrescriptionFileUpload
+                  fileUrl={prescData.fileUrl}
+                  fileName={prescData.fileName}
+                  onUpload={(url, name) => setPrescData({ ...prescData, fileUrl: url, fileName: name })}
+                  onClear={() => setPrescData({ ...prescData, fileUrl: "", fileName: "" })}
+                />
+                {prescData.fileUrl && (
+                  <button onClick={savePrescription} disabled={saving}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
+                    {saving ? "Saving..." : "+ Add Prescription"}
+                  </button>
+                )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {prescList.length === 0 ? (
             <div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-400">
