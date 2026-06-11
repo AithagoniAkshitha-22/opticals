@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import React, { useState, useRef, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { apiClient } from "@/lib/api"
 
@@ -217,21 +217,26 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                         <tr key={row} className="border-t border-gray-100">
                           <td className="py-2 px-2 font-bold text-gray-700 text-xs whitespace-nowrap">{row === "dv" ? "D.V." : "N.V."}</td>
                           {(["rightEye","leftEye"] as const).map((eye, eyeIdx) => (
-                            (["sph","cyl","axis","va"] as const).map((field, fieldIdx) => (
-                              <td key={`${eye}-${field}`} className={`py-1 px-1 ${eyeIdx === 0 && fieldIdx === 3 ? "border-r-2 border-gray-300" : ""}`}>
-                                <input
-                                  type={field === "va" ? "text" : "number"}
-                                  step={field === "axis" ? "1" : "0.25"}
-                                  placeholder="-"
-                                  value={(prescData[eye][row] as any)[field]}
-                                  onChange={(e) => setPrescData({
-                                    ...prescData,
-                                    [eye]: { ...prescData[eye], [row]: { ...prescData[eye][row], [field]: e.target.value } }
-                                  })}
-                                  className="w-full text-center bg-transparent border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none text-sm py-1 min-w-[40px]"
-                                />
-                              </td>
-                            ))
+                            <React.Fragment key={eye}>
+                              {(["sph","cyl","axis","va"] as const).map((field, fieldIdx) => (
+                                <td key={`${eye}-${field}`} className={`py-1 px-1 ${eyeIdx === 0 && fieldIdx === 3 ? "border-r-2 border-gray-300" : ""}`}>
+                                  <input
+                                    type={field === "va" ? "text" : "number"}
+                                    step={field === "axis" ? "1" : "0.25"}
+                                    placeholder="-"
+                                    value={(prescData[eye][row] as any)[field]}
+                                    onChange={(e) => {
+                                      const val = e.target.value
+                                      setPrescData(prev => ({
+                                        ...prev,
+                                        [eye]: { ...prev[eye], [row]: { ...(prev[eye][row] as any), [field]: val } }
+                                      }))
+                                    }}
+                                    className="w-full text-center bg-transparent border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none text-sm py-1 min-w-[40px]"
+                                  />
+                                </td>
+                              ))}
+                            </React.Fragment>
                           ))}
                         </tr>
                       ))}
