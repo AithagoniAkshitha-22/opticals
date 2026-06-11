@@ -27,7 +27,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return
     }
 
-    const count = await Order.countDocuments()
+    const count = await Order.countDocuments({ isHidden: { $ne: true } })
     const letter = String.fromCharCode(65 + Math.floor(count / 100))
     const number = (count % 100) + 1
     const orderNumber = `${letter}${number}`
