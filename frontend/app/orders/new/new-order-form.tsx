@@ -180,19 +180,29 @@ export default function NewOrderForm() {
           {lenses.length === 0 ? <p className="text-gray-400 text-sm">No lenses added</p> : (
             <div className="space-y-3">
               {lenses.map((l, i) => (
-                <div key={i} className="flex gap-3 items-center flex-wrap">
-                  <select value={l.brand} onChange={(e) => { const n = [...lenses]; n[i].brand = e.target.value; setLenses(n) }}
-                    className="w-40 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    {lensBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
-                    {lensBrands.length === 0 && <option value="">No brands</option>}
-                  </select>
-                  <input type="text" value={l.powPow} onChange={(e) => { const n = [...lenses]; n[i].powPow = e.target.value; setLenses(n) }}
-                    placeholder="POW/POW"
-                    className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                  <input type="text" value={l.compPow} onChange={(e) => { const n = [...lenses]; n[i].compPow = e.target.value; setLenses(n) }}
-                    placeholder="COMP/POW"
-                    className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                  <button type="button" onClick={() => setLenses(lenses.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+                <div key={i} className="border border-gray-100 rounded-lg p-3 bg-gray-50 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <select value={l.brand} onChange={(e) => { const n = [...lenses]; n[i].brand = e.target.value; setLenses(n) }}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                      {lensBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
+                      {lensBrands.length === 0 && <option value="">No brands</option>}
+                    </select>
+                    <button type="button" onClick={() => setLenses(lenses.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg flex-shrink-0">✕</button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-gray-500 font-medium">POW/POW</label>
+                      <input type="text" value={l.powPow} onChange={(e) => { const n = [...lenses]; n[i].powPow = e.target.value; setLenses(n) }}
+                        placeholder="e.g. -1.50/-2.00"
+                        className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 font-medium">COMP/POW</label>
+                      <input type="text" value={l.compPow} onChange={(e) => { const n = [...lenses]; n[i].compPow = e.target.value; setLenses(n) }}
+                        placeholder="e.g. 0.75/-1.25"
+                        className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1" />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
