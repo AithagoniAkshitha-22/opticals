@@ -17,12 +17,6 @@ const TYPE_COLORS: Record<string, string> = {
   tablet: "bg-orange-50 text-orange-700 border-orange-200",
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  frame: "bg-blue-50 text-blue-700 border-blue-200",
-  lens: "bg-purple-50 text-purple-700 border-purple-200",
-  drop: "bg-green-50 text-green-700 border-green-200",
-}
-
 export default function BrandsClient({ initialFrameBrands, initialLensBrands, initialDropBrands, initialTabletBrands }: {
   initialFrameBrands: any[]; initialLensBrands: any[]; initialDropBrands: any[]; initialTabletBrands: any[]
 }) {
