@@ -26,8 +26,8 @@ export const createBrand = async (req: Request, res: Response): Promise<void> =>
       res.status(400).json({ success: false, error: "Name and type are required" })
       return
     }
-    if (!["frame", "lens", "drop"].includes(type)) {
-      res.status(400).json({ success: false, error: "Type must be 'frame', 'lens', or 'drop'" })
+    if (!["frame", "lens", "drop", "tablet"].includes(type)) {
+      res.status(400).json({ success: false, error: "Type must be 'frame', 'lens', 'drop', or 'tablet'" })
       return
     }
 

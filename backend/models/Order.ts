@@ -10,7 +10,8 @@ export interface IFrameItem {
 
 export interface ILensItem {
   brand: string
-  powerDetails: string
+  powPow: string
+  compPow: string
 }
 
 export interface IDropItem {
@@ -63,7 +64,8 @@ const OrderSchema = new Schema<IOrder>(
     lenses: [
       {
         brand: { type: String, required: true, default: "Unknown" },
-        powerDetails: { type: String, default: "" },
+        powPow: { type: String, default: "" },
+        compPow: { type: String, default: "" },
         _id: false,
       },
     ],

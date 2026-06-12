@@ -151,7 +151,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
 
     const itemLines = [
       ...(order.frames?.map((f: any) => `Frame: ${f.brand} x${f.quantity}`) || []),
-      ...(order.lenses?.map((l: any) => `Lens: ${l.brand}${l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
+      ...(order.lenses?.map((l: any) => `Lens: ${l.brand}${l.powPow ? ` (${l.powPow})` : ""}${l.compPow ? ` / ${l.compPow}` : ""}${!l.powPow && !l.compPow && l.powerDetails ? ` (${l.powerDetails})` : ""}`) || []),
       ...(order.drops?.map((d: any) => `Eye Drop: ${d.name} x${d.quantity}`) || []),
       ...(order.tablets?.map((t: any) => `Tablet: ${t.name} x${t.quantity}`) || []),
     ].join("\n")
@@ -327,7 +327,12 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
               {order.lenses.map((l: any, i: number) => (
                 <div key={i} className="flex justify-between py-2 border-b border-gray-100 text-sm">
                   <span className="text-gray-800">{l.brand}</span>
-                  <span className="text-gray-500">{l.powerDetails}</span>
+                  <span className="text-gray-500 text-xs">
+                    {l.powPow && <span>POW: {l.powPow}</span>}
+                    {l.powPow && l.compPow && <span className="mx-1">·</span>}
+                    {l.compPow && <span>COMP: {l.compPow}</span>}
+                    {!l.powPow && !l.compPow && l.powerDetails && <span>{l.powerDetails}</span>}
+                  </span>
                 </div>
               ))}
             </div>
@@ -540,7 +545,7 @@ export default function OrderDetailClient({ order: initialOrder, prescription }:
             {order.lenses?.map((l: any, i: number) => (
               <tr key={`l${i}`} style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <td style={{ padding: '7px 10px' }}>Lens</td>
-                <td style={{ padding: '7px 10px' }}>{l.brand}{l.powerDetails ? ` — ${l.powerDetails}` : ''}</td>
+                <td style={{ padding: '7px 10px' }}>{l.brand}{l.powPow ? ` — ${l.powPow}` : ''}{l.compPow ? ` / ${l.compPow}` : ''}{!l.powPow && !l.compPow && l.powerDetails ? ` — ${l.powerDetails}` : ''}</td>
                 <td style={{ padding: '7px 10px', textAlign: 'right' }}>1</td>
               </tr>
             ))}

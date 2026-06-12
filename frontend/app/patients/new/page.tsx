@@ -34,7 +34,7 @@ export default function NewPatientPage() {
   const [lensBrands, setLensBrands] = useState<any[]>([])
   const [dropBrands, setDropBrands] = useState<any[]>([])
   const [frames, setFrames] = useState<FrameItem[]>([])
-  const [lenses, setLenses] = useState<{ brand: string; powerDetails: string }[]>([])
+  const [lenses, setLenses] = useState<{ brand: string; powPow: string; compPow: string }[]>([])
   const [drops, setDrops] = useState<{ name: string; quantity: number }[]>([])
   const [tablets, setTablets] = useState<{ name: string; quantity: number }[]>([])
   const [totalAmount, setTotalAmount] = useState("")
@@ -307,20 +307,22 @@ export default function NewPatientPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Lenses</span>
-              <button type="button" onClick={() => setLenses([...lenses, { brand: lensBrands[0]?.name || "", powerDetails: "" }])}
+              <button type="button" onClick={() => setLenses([...lenses, { brand: lensBrands[0]?.name || "", powPow: "", compPow: "" }])}
                 className="text-blue-600 text-sm hover:underline">+ Add Lens</button>
             </div>
             {lenses.length === 0 ? <p className="text-gray-400 text-xs">No lenses added</p> : (
               <div className="space-y-2">
                 {lenses.map((l, i) => (
-                  <div key={i} className="flex gap-2 items-center">
+                  <div key={i} className="flex gap-2 items-center flex-wrap">
                     <select value={l.brand} onChange={(e) => { const n = [...lenses]; n[i].brand = e.target.value; setLenses(n) }}
                       className="w-36 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                       {lensBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
                       {lensBrands.length === 0 && <option value="">No brands</option>}
                     </select>
-                    <input type="text" value={l.powerDetails} onChange={(e) => { const n = [...lenses]; n[i].powerDetails = e.target.value; setLenses(n) }}
-                      placeholder="Power details" className="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <input type="text" value={l.powPow} onChange={(e) => { const n = [...lenses]; n[i].powPow = e.target.value; setLenses(n) }}
+                      placeholder="POW/POW" className="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <input type="text" value={l.compPow} onChange={(e) => { const n = [...lenses]; n[i].compPow = e.target.value; setLenses(n) }}
+                      placeholder="COMP/POW" className="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                     <button type="button" onClick={() => setLenses(lenses.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600">✕</button>
                   </div>
                 ))}

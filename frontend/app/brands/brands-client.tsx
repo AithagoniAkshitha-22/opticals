@@ -7,6 +7,14 @@ const TYPE_LABELS: Record<string, string> = {
   frame: "Frame Brands",
   lens: "Lens Brands",
   drop: "Eye Drop Brands",
+  tablet: "Tablet Brands",
+}
+
+const TYPE_COLORS: Record<string, string> = {
+  frame: "bg-blue-50 text-blue-700 border-blue-200",
+  lens: "bg-purple-50 text-purple-700 border-purple-200",
+  drop: "bg-green-50 text-green-700 border-green-200",
+  tablet: "bg-orange-50 text-orange-700 border-orange-200",
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -15,14 +23,15 @@ const TYPE_COLORS: Record<string, string> = {
   drop: "bg-green-50 text-green-700 border-green-200",
 }
 
-export default function BrandsClient({ initialFrameBrands, initialLensBrands, initialDropBrands }: {
-  initialFrameBrands: any[]; initialLensBrands: any[]; initialDropBrands: any[]
+export default function BrandsClient({ initialFrameBrands, initialLensBrands, initialDropBrands, initialTabletBrands }: {
+  initialFrameBrands: any[]; initialLensBrands: any[]; initialDropBrands: any[]; initialTabletBrands: any[]
 }) {
   const [frameBrands, setFrameBrands] = useState(initialFrameBrands)
   const [lensBrands, setLensBrands] = useState(initialLensBrands)
   const [dropBrands, setDropBrands] = useState(initialDropBrands)
+  const [tabletBrands, setTabletBrands] = useState(initialTabletBrands)
   const [newName, setNewName] = useState("")
-  const [newType, setNewType] = useState<"frame" | "lens" | "drop">("frame")
+  const [newType, setNewType] = useState<"frame" | "lens" | "drop" | "tablet">("frame")
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState("")
   const [saving, setSaving] = useState(false)
@@ -43,7 +52,8 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
       if (res.success && res.data) {
         if (newType === "frame") setFrameBrands(p => [...p, res.data])
         else if (newType === "lens") setLensBrands(p => [...p, res.data])
-        else setDropBrands(p => [...p, res.data])
+        else if (newType === "drop") setDropBrands(p => [...p, res.data])
+        else setTabletBrands(p => [...p, res.data])
         setNewName("")
         flash(`"${res.data.name}" added!`)
       } else flash(res.error || "Failed to add brand", true)
@@ -51,7 +61,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
     finally { setSaving(false) }
   }
 
-  const saveBrand = async (id: string, type: "frame" | "lens" | "drop") => {
+  const saveBrand = async (id: string, type: "frame" | "lens" | "drop" | "tablet") => {
     if (!editName.trim()) { flash("Brand name is required", true); return }
     setSaving(true)
     try {
@@ -60,7 +70,8 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
         const updater = (list: any[]) => list.map(b => b._id === id ? { ...b, name: editName.trim() } : b)
         if (type === "frame") setFrameBrands(updater)
         else if (type === "lens") setLensBrands(updater)
-        else setDropBrands(updater)
+        else if (type === "drop") setDropBrands(updater)
+        else setTabletBrands(updater)
         setEditId(null)
         flash("Brand updated!")
       } else flash(res.error || "Failed to update", true)
@@ -68,7 +79,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
     finally { setSaving(false) }
   }
 
-  const BrandList = ({ brands, type }: { brands: any[]; type: "frame" | "lens" | "drop" }) => {
+  const BrandList = ({ brands, type }: { brands: any[]; type: "frame" | "lens" | "drop" | "tablet" }) => {
     const isOpen = open[type]
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -159,7 +170,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <div className="flex gap-2">
-            {(["frame", "lens", "drop"] as const).map((t) => (
+            {(["frame", "lens", "drop", "tablet"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -170,7 +181,7 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
                     : "border-gray-300 text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                {t === "frame" ? "Frame" : t === "lens" ? "Lens" : "Eye Drop"}
+                {t === "frame" ? "Frame" : t === "lens" ? "Lens" : t === "drop" ? "Eye Drop" : "Tablet"}
               </button>
             ))}
           </div>
@@ -185,10 +196,11 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
       </div>
 
       {/* Brand Lists — all 3 in a responsive grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <BrandList brands={frameBrands} type="frame" />
         <BrandList brands={lensBrands} type="lens" />
         <BrandList brands={dropBrands} type="drop" />
+        <BrandList brands={tabletBrands} type="tablet" />
       </div>
     </div>
   )
