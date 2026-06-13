@@ -110,3 +110,16 @@ export const updateBrand = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
+
+// Delete brand
+export const deleteBrand = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const brand = await Brand.findByIdAndDelete(id)
+    if (!brand) { res.status(404).json({ success: false, error: "Brand not found" }); return }
+    res.status(200).json({ success: true, message: "Brand deleted" })
+  } catch (error) {
+    console.error("Error deleting brand:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}

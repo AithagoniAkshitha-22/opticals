@@ -127,6 +127,10 @@ class ApiClient {
     return this.request(`/brands/${id}`, { method: "PUT", body: JSON.stringify({ name }) })
   }
 
+  async deleteBrand(id: string) {
+    return this.request(`/brands/${id}`, { method: "DELETE" })
+  }
+
   // ── Upload ────────────────────────────────────────────────
   async uploadFile(data: string, folder = "kasturi-eye") {
     return this.request("/upload", {

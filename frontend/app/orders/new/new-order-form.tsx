@@ -6,7 +6,6 @@ import { apiClient } from "@/lib/api"
 
 interface FrameItem {
   brand: string
-  quantity: number
   imageBase64?: string
   imagePreview?: string
 }
@@ -51,7 +50,7 @@ export default function NewOrderForm() {
     } catch (e) { console.error(e) }
   }
 
-  const addFrame = () => setFrames([...frames, { brand: frameBrands[0]?.name || "", quantity: 1 }])
+  const addFrame = () => setFrames([...frames, { brand: frameBrands[0]?.name || "" }])
   const addLens = () => setLenses([...lenses, { brand: lensBrands[0]?.name || "", powPow: "", compPow: "" }])
   const addDrop = () => setDrops([...drops, { name: dropBrands[0]?.name || "", quantity: 1 }])
   const addTablet = () => setTablets([...tablets, { name: "", quantity: 1 }])
@@ -85,7 +84,8 @@ export default function NewOrderForm() {
     try {
       // Upload each frame image to Cloudinary before creating the order
       const framesPayload = await Promise.all(
-        frames.map(async ({ imagePreview, imageBase64, ...rest }) => {
+        frames.map(async ({ imagePreview: _imagePreview, imageBase64, brand }) => {
+          const rest = { brand }
           let imageUrl: string | undefined = undefined
           if (imageBase64) {
             const uploadRes = await apiClient.uploadFile(imageBase64, "kasturi-eye/frames")
@@ -315,38 +315,43 @@ function FrameRow({ frame, index, frameBrands, onChange, onImageChange, onRemove
   const fileRef = useRef<HTMLInputElement>(null)
   return (
     <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2">
         <select value={frame.brand} onChange={(e) => onChange({ ...frame, brand: e.target.value })}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
           {frameBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
           {frameBrands.length === 0 && <option value="">No brands</option>}
         </select>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <button type="button" onClick={() => onChange({ ...frame, quantity: Math.max(1, frame.quantity - 1) })} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">−</button>
-          <span className="w-7 text-center text-sm font-semibold">{frame.quantity}</span>
-          <button type="button" onClick={() => onChange({ ...frame, quantity: frame.quantity + 1 })} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">+</button>
-          <button type="button" onClick={onRemove} className="w-8 h-8 border border-red-200 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center ml-1">✕</button>
-        </div>
+        <button type="button" onClick={onRemove} className="w-8 h-8 border border-red-200 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center flex-shrink-0">✕</button>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 mt-2">
         {frame.imagePreview ? (
           <div className="relative">
-            <img src={frame.imagePreview} alt="Frame" className="w-20 h-20 object-cover rounded-lg border border-gray-300" />
-            <button type="button" onClick={() => { onChange({ ...frame, imageBase64: undefined, imagePreview: undefined }); if (fileRef.current) fileRef.current.value = "" }}
-              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600">✕</button>
+            <img
+              src={frame.imagePreview}
+              alt="Frame"
+              className="w-20 h-20 object-cover rounded-lg border border-gray-300 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => window.open(frame.imagePreview, '_blank')}
+            />
+            <button type="button"
+              onClick={() => { onChange({ ...frame, imageBase64: undefined, imagePreview: undefined }); if (fileRef.current) fileRef.current.value = "" }}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         ) : (
-          <button type="button" onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors bg-white">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Upload Frame Image <span className="text-xs text-gray-400">(optional)</span>
-          </button>
+          <div className="flex gap-2 w-full">
+            <button type="button"
+              onClick={() => { if (fileRef.current) { fileRef.current.setAttribute("capture", "environment"); fileRef.current.click() } }}
+              className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-gray-300 rounded-lg py-2 text-xs text-gray-500 hover:border-blue-400 hover:text-blue-600 bg-white transition-colors">
+              📷 Camera
+            </button>
+            <button type="button"
+              onClick={() => { if (fileRef.current) { fileRef.current.removeAttribute("capture"); fileRef.current.click() } }}
+              className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-gray-300 rounded-lg py-2 text-xs text-gray-500 hover:border-blue-400 hover:text-blue-600 bg-white transition-colors">
+              🖼️ Gallery
+            </button>
+          </div>
         )}
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
           onChange={(e) => onImageChange(e.target.files?.[0] || null)} />
-        {frame.imagePreview && <button type="button" onClick={() => fileRef.current?.click()} className="text-xs text-blue-600 hover:underline">Change</button>}
       </div>
       <p className="text-xs text-gray-400 mt-1.5">JPEG/PNG/WebP · max 2MB</p>
     </div>

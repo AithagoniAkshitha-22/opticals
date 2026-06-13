@@ -73,6 +73,21 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
     finally { setSaving(false) }
   }
 
+  const deleteBrand = async (id: string, type: "frame" | "lens" | "drop" | "tablet") => {
+    if (!confirm("Delete this brand? This cannot be undone.")) return
+    try {
+      const res = await apiClient.deleteBrand(id)
+      if (res.success) {
+        const remove = (list: any[]) => list.filter(b => b._id !== id)
+        if (type === "frame") setFrameBrands(remove)
+        else if (type === "lens") setLensBrands(remove)
+        else if (type === "drop") setDropBrands(remove)
+        else setTabletBrands(remove)
+        flash("Brand deleted!")
+      } else flash(res.error || "Failed to delete", true)
+    } catch (e: any) { flash(e.message, true) }
+  }
+
   const BrandList = ({ brands, type }: { brands: any[]; type: "frame" | "lens" | "drop" | "tablet" }) => {
     const isOpen = open[type]
     return (
@@ -128,12 +143,12 @@ export default function BrandsClient({ initialFrameBrands, initialLensBrands, in
                     ) : (
                       <>
                         <span className="text-sm text-gray-800">{b.name}</span>
-                        <button
-                          onClick={() => { setEditId(b._id); setEditName(b.name) }}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-medium ml-4 flex-shrink-0"
-                        >
-                          Edit
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => { setEditId(b._id); setEditName(b.name) }}
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+                          <button onClick={() => deleteBrand(b._id, type)}
+                            className="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+                        </div>
                       </>
                     )}
                   </div>
