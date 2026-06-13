@@ -210,31 +210,34 @@ export default function NewOrderForm() {
         </div>
 
         {/* Drops */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-gray-800">Eye Drops</h2>
             <button type="button" onClick={addDrop} className="text-blue-600 text-sm hover:underline font-medium">+ Add Drop</button>
           </div>
           {drops.length === 0 ? <p className="text-gray-400 text-sm">No drops added</p> : (
             <div className="space-y-3">
               {drops.map((d, i) => (
-                <div key={i} className="flex gap-3 items-center">
-                  {dropBrands.length > 0 ? (
-                    <select value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
-                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
-                      {dropBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
-                    </select>
-                  ) : (
-                    <input type="text" value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
-                      placeholder="Drop name"
-                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                  )}
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => { const n = [...drops]; n[i].quantity = Math.max(1, n[i].quantity - 1); setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">−</button>
-                    <span className="w-8 text-center text-sm font-medium">{d.quantity}</span>
-                    <button type="button" onClick={() => { const n = [...drops]; n[i].quantity += 1; setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">+</button>
+                <div key={i} className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-center gap-2 mb-2">
+                    {dropBrands.length > 0 ? (
+                      <select value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        {dropBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
+                      </select>
+                    ) : (
+                      <input type="text" value={d.name} onChange={(e) => { const n = [...drops]; n[i].name = e.target.value; setDrops(n) }}
+                        placeholder="Drop name"
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    )}
+                    <button type="button" onClick={() => setDrops(drops.filter((_, j) => j !== i))}
+                      className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100">✕</button>
                   </div>
-                  <button type="button" onClick={() => setDrops(drops.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => { const n = [...drops]; n[i].quantity = Math.max(1, n[i].quantity - 1); setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">−</button>
+                    <span className="w-8 text-center text-sm font-medium">{d.quantity}</span>
+                    <button type="button" onClick={() => { const n = [...drops]; n[i].quantity += 1; setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">+</button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -242,24 +245,27 @@ export default function NewOrderForm() {
         </div>
 
         {/* Tablets */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-gray-800">Tablets</h2>
             <button type="button" onClick={addTablet} className="text-blue-600 text-sm hover:underline font-medium">+ Add Tablet</button>
           </div>
           {tablets.length === 0 ? <p className="text-gray-400 text-sm">No tablets added</p> : (
             <div className="space-y-3">
               {tablets.map((t, i) => (
-                <div key={i} className="flex gap-3 items-center">
-                  <input type="text" value={t.name} onChange={(e) => { const n = [...tablets]; n[i].name = e.target.value; setTablets(n) }}
-                    placeholder="Tablet name"
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity = Math.max(1, n[i].quantity - 1); setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">−</button>
-                    <span className="w-8 text-center text-sm font-medium">{t.quantity}</span>
-                    <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity += 1; setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-50 flex items-center justify-center">+</button>
+                <div key={i} className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <input type="text" value={t.name} onChange={(e) => { const n = [...tablets]; n[i].name = e.target.value; setTablets(n) }}
+                      placeholder="Tablet name"
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    <button type="button" onClick={() => setTablets(tablets.filter((_, j) => j !== i))}
+                      className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100">✕</button>
                   </div>
-                  <button type="button" onClick={() => setTablets(tablets.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity = Math.max(1, n[i].quantity - 1); setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">−</button>
+                    <span className="w-8 text-center text-sm font-medium">{t.quantity}</span>
+                    <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity += 1; setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">+</button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -309,18 +315,18 @@ function FrameRow({ frame, index, frameBrands, onChange, onImageChange, onRemove
   const fileRef = useRef<HTMLInputElement>(null)
   return (
     <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
-      <div className="flex gap-3 items-center mb-3">
+      <div className="flex gap-2 items-center mb-2">
         <select value={frame.brand} onChange={(e) => onChange({ ...frame, brand: e.target.value })}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
           {frameBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
           {frameBrands.length === 0 && <option value="">No brands</option>}
         </select>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <button type="button" onClick={() => onChange({ ...frame, quantity: Math.max(1, frame.quantity - 1) })} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">−</button>
-          <span className="w-8 text-center text-sm font-semibold">{frame.quantity}</span>
+          <span className="w-7 text-center text-sm font-semibold">{frame.quantity}</span>
           <button type="button" onClick={() => onChange({ ...frame, quantity: frame.quantity + 1 })} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">+</button>
         </div>
-        <button type="button" onClick={onRemove} className="text-red-400 hover:text-red-600 text-lg">✕</button>
+        <button type="button" onClick={onRemove} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100">✕</button>
       </div>
       <div className="flex items-center gap-4">
         {frame.imagePreview ? (
