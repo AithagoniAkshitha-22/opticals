@@ -3,45 +3,37 @@
 import { useState, useEffect } from "react"
 import { apiClient } from "@/lib/api"
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-const YEARS = [2023, 2024, 2025, 2026, 2027]
-
 export default function ReportsClient({ initialData, initialYear }: { initialData: any; initialYear: number }) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
-  const currentMonth = new Date().getMonth() + 1
-  const currentYear = new Date().getFullYear()
+  const today = new Date()
+  const firstOfMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`
+  const todayStr = today.toISOString().split("T")[0]
 
-  const [fromMonth, setFromMonth] = useState(currentMonth)
-  const [fromYear, setFromYear] = useState(currentYear)
-  const [toMonth, setToMonth] = useState(currentMonth)
-  const [toYear, setToYear] = useState(currentYear)
+  const [fromDate, setFromDate] = useState(firstOfMonth)
+  const [toDate, setToDate] = useState(todayStr)
 
-  const fetchReport = async (fm: number, fy: number, tm: number, ty: number) => {
+  const fetchReport = async (from: string, to: string) => {
     setLoading(true)
     try {
+      const [fy, fm] = from.split("-").map(Number)
+      const [ty, tm] = to.split("-").map(Number)
       const res = await apiClient.getMonthlyReport({ fromMonth: fm, fromYear: fy, toMonth: tm, toYear: ty })
       if (res.success && res.data) setData(res.data)
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
   }
 
-  useEffect(() => {
-    fetchReport(fromMonth, fromYear, toMonth, toYear)
-  }, [])
+  useEffect(() => { fetchReport(fromDate, toDate) }, [])
 
   const handleSearch = () => {
-    // Validate range
-    const from = fromYear * 12 + fromMonth
-    const to = toYear * 12 + toMonth
-    if (from > to) { alert("'From' date must be before 'To' date"); return }
-    fetchReport(fromMonth, fromYear, toMonth, toYear)
+    if (fromDate > toDate) { alert("'From' date must be before 'To' date"); return }
+    fetchReport(fromDate, toDate)
   }
 
   const totalPatients = data ? data.report.reduce((s: number, r: any) => s + r.patients, 0) : 0
   const totalOrders = data ? data.report.reduce((s: number, r: any) => s + r.orders, 0) : 0
-  const maxVal = data ? Math.max(...data.report.map((r: any) => Math.max(r.patients, r.orders)), 1) : 1
 
   return (
     <div className="space-y-6">
@@ -49,45 +41,28 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
       {/* Date Range Filter */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
         <h2 className="text-sm font-semibold text-gray-700 mb-4">Select Date Range</h2>
-        <div className="flex flex-wrap items-end gap-4">
-          {/* From */}
-          <div className="flex items-end gap-2">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">From</label>
-              <div className="flex gap-2">
-                <select value={fromMonth} onChange={(e) => setFromMonth(Number(e.target.value))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
-                </select>
-                <select value={fromYear} onChange={(e) => setFromYear(Number(e.target.value))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-                </select>
-              </div>
-            </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+          <div className="flex-1 w-full">
+            <label className="block text-xs text-gray-500 mb-1">From</label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-
-          <span className="text-gray-400 text-sm pb-2">→</span>
-
-          {/* To */}
-          <div className="flex items-end gap-2">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">To</label>
-              <div className="flex gap-2">
-                <select value={toMonth} onChange={(e) => setToMonth(Number(e.target.value))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
-                </select>
-                <select value={toYear} onChange={(e) => setToYear(Number(e.target.value))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-                </select>
-              </div>
-            </div>
+          <span className="text-gray-400 text-sm hidden sm:block pb-2">→</span>
+          <div className="flex-1 w-full">
+            <label className="block text-xs text-gray-500 mb-1">To</label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-
           <button onClick={handleSearch} disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
             {loading ? "Loading..." : "Search"}
           </button>
         </div>
