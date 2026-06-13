@@ -437,9 +437,10 @@ function PrescriptionFileUpload({
           <button type="button" onClick={onClear} className="text-xs text-red-500 hover:underline">Remove</button>
         </div>
         {isImage ? (
-          <button type="button" onClick={() => window.open(fileUrl, '_blank')} className="block w-full focus:outline-none">
-            <img src={fileUrl} alt={fileName} className="max-h-48 rounded-lg border border-green-200 object-contain cursor-zoom-in hover:opacity-90 transition-opacity" />
-            <p className="text-xs text-gray-400 mt-1 text-center">Tap to view full image</p>
+          <button type="button" onClick={() => window.open(fileUrl, '_blank')}
+            className="block w-full focus:outline-none cursor-zoom-in">
+            <img src={fileUrl} alt={fileName} className="max-h-48 rounded-lg border border-green-200 object-contain hover:opacity-90 transition-opacity" />
+            <p className="text-xs text-gray-400 mt-1 text-center">Tap to view full size</p>
           </button>
         ) : (
           <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
