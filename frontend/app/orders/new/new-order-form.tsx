@@ -321,7 +321,7 @@ function FrameRow({ frame, index, frameBrands, onChange, onImageChange, onRemove
           {frameBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
           {frameBrands.length === 0 && <option value="">No brands</option>}
         </select>
-        <button type="button" onClick={onRemove} className="w-8 h-8 border border-red-200 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center flex-shrink-0">✕</button>
+        <button type="button" onClick={onRemove} className="w-8 h-8 border border-red-200 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold">✕</button>
       </div>
       <div className="flex items-center gap-3 mt-2">
         {frame.imagePreview ? (
