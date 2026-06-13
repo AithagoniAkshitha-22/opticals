@@ -62,7 +62,7 @@ export default function NewOrderForm() {
       setFrames(updated)
       return
     }
-    if (file.size > 2 * 1024 * 1024) { alert("Image must be under 2MB"); return }
+    if (file.size > 10 * 1024 * 1024) { alert("Image must be under 10MB"); return }
     const reader = new FileReader()
     reader.onload = (e) => {
       const base64 = e.target?.result as string
@@ -187,7 +187,7 @@ export default function NewOrderForm() {
                       {lensBrands.map((b: any) => <option key={b._id} value={b.name}>{b.name}</option>)}
                       {lensBrands.length === 0 && <option value="">No brands</option>}
                     </select>
-                    <button type="button" onClick={() => setLenses(lenses.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 text-lg flex-shrink-0">✕</button>
+                    <button type="button" onClick={() => setLenses(lenses.filter((_, j) => j !== i))} className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-400 hover:bg-red-100 text-sm font-bold">✕</button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -231,7 +231,7 @@ export default function NewOrderForm() {
                         className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                     )}
                     <button type="button" onClick={() => setDrops(drops.filter((_, j) => j !== i))}
-                      className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100">✕</button>
+                      className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-400 hover:bg-red-100 text-sm font-bold">✕</button>
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => { const n = [...drops]; n[i].quantity = Math.max(1, n[i].quantity - 1); setDrops(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">−</button>
@@ -259,7 +259,7 @@ export default function NewOrderForm() {
                       placeholder="Tablet name"
                       className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                     <button type="button" onClick={() => setTablets(tablets.filter((_, j) => j !== i))}
-                      className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100">✕</button>
+                      className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-400 hover:bg-red-100 text-sm font-bold">✕</button>
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => { const n = [...tablets]; n[i].quantity = Math.max(1, n[i].quantity - 1); setTablets(n) }} className="w-8 h-8 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 flex items-center justify-center">−</button>
