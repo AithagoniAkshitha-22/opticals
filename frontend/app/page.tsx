@@ -48,7 +48,7 @@ export default function DashboardPage() {
             className={`border rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow ${colorMap[card.color]}`}>
             <span className="text-2xl mb-1">{card.icon}</span>
             <span className="text-3xl font-bold">{loading ? "—" : card.value}</span>
-            <span className="text-xs font-medium mt-1 leading-tight">{card.label}</span>
+            <span className="text-xs font-medium mt-1 leading-tight truncate w-full text-center">{card.label}</span>
           </Link>
         ))}
       </div>

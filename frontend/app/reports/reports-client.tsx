@@ -85,6 +85,7 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
       {/* Table */}
       {data && data.report.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
               <tr>
@@ -108,6 +109,7 @@ export default function ReportsClient({ initialData, initialYear }: { initialDat
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
