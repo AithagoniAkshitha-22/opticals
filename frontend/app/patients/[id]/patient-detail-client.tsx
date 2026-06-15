@@ -285,7 +285,22 @@ export default function PatientDetailClient({ patientData }: { patientData: any 
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${p.type === "manual" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}>
                       {p.type === "manual" ? "Manual Entry" : "Uploaded File"}
                     </span>
-                    <span className="text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>
+                      <button
+                        onClick={async () => {
+                          if (!confirm("Delete this prescription? This cannot be undone.")) return
+                          try {
+                            const res = await apiClient.deletePrescription(p._id)
+                            if (res.success) setPrescList((prev: any[]) => prev.filter((x: any) => x._id !== p._id))
+                          } catch (e) { console.error(e) }
+                        }}
+                        className="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors" title="Delete prescription">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                   {p.type === "manual" ? (
                     <div className="overflow-x-auto">

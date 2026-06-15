@@ -70,7 +70,21 @@ export const createPrescription = async (req: Request, res: Response): Promise<v
   }
 }
 
-// Get prescriptions for a patient
+// Delete prescription
+export const deletePrescription = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const prescription = await Prescription.findByIdAndDelete(id)
+    if (!prescription) {
+      res.status(404).json({ success: false, error: "Prescription not found" })
+      return
+    }
+    res.status(200).json({ success: true, message: "Prescription deleted" })
+  } catch (error) {
+    console.error("Error deleting prescription:", error)
+    res.status(500).json({ success: false, error: "Internal server error" })
+  }
+}
 export const getPatientPrescriptions = async (req: Request, res: Response): Promise<void> => {
   try {
     const { patientId } = req.params

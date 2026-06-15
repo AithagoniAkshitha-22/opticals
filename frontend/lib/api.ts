@@ -62,6 +62,10 @@ class ApiClient {
     return this.request("/prescriptions", { method: "POST", body: JSON.stringify(data) })
   }
 
+  async deletePrescription(id: string) {
+    return this.request(`/prescriptions/${id}`, { method: "DELETE" })
+  }
+
   async getPatientPrescriptions(patientId: string) {
     return this.request(`/prescriptions/patient/${patientId}`)
   }
