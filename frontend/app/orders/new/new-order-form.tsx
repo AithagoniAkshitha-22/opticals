@@ -316,6 +316,12 @@ function FrameRow({ frame, index, frameBrands, onChange, onImageChange, onRemove
   const [lightbox, setLightbox] = useState(false)
   return (
     <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+      {lightbox && frame.imagePreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setLightbox(false)}>
+          <img src={frame.imagePreview} alt="Frame" className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl" />
+          <button onClick={() => setLightbox(false)} className="absolute top-4 right-4 text-white text-3xl font-light leading-none">×</button>
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <select value={frame.brand} onChange={(e) => onChange({ ...frame, brand: e.target.value })}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
