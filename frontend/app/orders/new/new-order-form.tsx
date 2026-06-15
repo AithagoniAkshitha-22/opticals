@@ -313,6 +313,7 @@ function FrameRow({ frame, index, frameBrands, onChange, onImageChange, onRemove
   onChange: (f: FrameItem) => void; onImageChange: (file: File | null) => void; onRemove: () => void
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
+  const [lightbox, setLightbox] = useState(false)
   return (
     <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
       <div className="flex items-center gap-2">
@@ -330,7 +331,7 @@ function FrameRow({ frame, index, frameBrands, onChange, onImageChange, onRemove
               src={frame.imagePreview}
               alt="Frame"
               className="w-20 h-20 object-cover rounded-lg border border-gray-300 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => window.open(frame.imagePreview, '_blank')}
+              onClick={() => setLightbox(true)}
             />
             <button type="button"
               onClick={() => { onChange({ ...frame, imageBase64: undefined, imagePreview: undefined }); if (fileRef.current) fileRef.current.value = "" }}
